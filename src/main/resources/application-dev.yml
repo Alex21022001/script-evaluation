@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.alexsitiy.script.evaluation: debug

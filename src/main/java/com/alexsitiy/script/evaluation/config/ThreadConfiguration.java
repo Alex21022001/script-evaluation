@@ -14,8 +14,8 @@ public class ThreadConfiguration {
     private final Integer poolCapacity;
     private final Integer queueCapacity;
 
-    public ThreadConfiguration(@Value("${app.thread-pool.queue-capacity:2}") Integer poolCapacity,
-                               @Value("${app.thread-pool.thread-capacity:5}") Integer queueCapacity) {
+    public ThreadConfiguration(@Value("${app.thread-pool.thread-capacity:2}") Integer poolCapacity,
+                               @Value("${app.thread-pool.queue-capacity:5}") Integer queueCapacity) {
         this.poolCapacity = poolCapacity;
         this.queueCapacity = queueCapacity;
     }
@@ -26,7 +26,8 @@ public class ThreadConfiguration {
     }
 
     @PreDestroy
-    public void shutdown(ScriptThreadPool scriptThreadPool){
-        scriptThreadPool.shutdown();
+    public void shutdown() {
+        // TODO: 18.08.2023  
+        scriptThreadPool().shutdown();
     }
 }

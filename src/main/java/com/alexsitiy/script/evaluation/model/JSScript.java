@@ -11,6 +11,21 @@ public class JSScript {
     private ByteArrayOutputStream result;
     private ByteArrayOutputStream errors;
 
+
+    public String calculateExecutionTime(){
+        return executionTime == null? status == Status.IN_QUEUE?
+                "The code has not been executed yet" : "The code is currently running"
+                : "%d MS".formatted(this.executionTime);
+    }
+
+    public String readResult(){
+        return this.result.toString();
+    }
+
+    public String readErrors(){
+        return this.errors.toString();
+    }
+
     public Integer getId() {
         return id;
     }

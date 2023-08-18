@@ -16,18 +16,18 @@ public class JSScriptTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
     private final JSScript jsScript;
-    private final ApplicationEventPublisher eventPublisher;
-
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     private Context context;
 
-    public JSScriptTask(JSScript jsScript, @Autowired ApplicationEventPublisher eventPublisher) {
+    public JSScriptTask(JSScript jsScript) {
         this.jsScript = jsScript;
-        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public void run() {
         try {
+            // May I create Context once per Thread and pass as a parameter to run()?
             context = Context.newBuilder()
                     .allowAllAccess(true)
 //                    .resourceLimits(ResourceLimits.newBuilder().build())

@@ -28,6 +28,7 @@ public class JSThreadPool implements ScriptThreadPool<JSScriptTask, Integer> {
 
     @Override
     public void submit(JSScriptTask task) {
+        // TODO: 18.08.2023 Add check if there is free place in queue.
         tasks.add(task);
     }
 

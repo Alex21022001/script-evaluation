@@ -1,1 +1,4 @@
-
+app:
+  thread-pool:
+    thread-capacity: 2
+    queue-capacity: 5

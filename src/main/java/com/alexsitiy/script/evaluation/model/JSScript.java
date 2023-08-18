@@ -7,6 +7,7 @@ public class JSScript {
     private Status status;
     private Long executionTime;
     private String body;
+    // TODO: 18.08.2023 Thread-safe outputStream
     private ByteArrayOutputStream result;
     private ByteArrayOutputStream errors;
 
@@ -65,5 +66,14 @@ public class JSScript {
         this.body = body;
         this.result = result;
         this.errors = errors;
+    }
+
+    @Override
+    public String toString() {
+        return "JSScript{" +
+               "id=" + id +
+               ", status=" + status +
+               ", executionTime=" + executionTime +
+               '}';
     }
 }

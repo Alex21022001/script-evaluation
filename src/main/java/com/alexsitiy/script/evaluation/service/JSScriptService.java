@@ -1,27 +1,48 @@
 package com.alexsitiy.script.evaluation.service;
 
+import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.dto.JSScriptReadDto;
+import com.alexsitiy.script.evaluation.mapper.JSScriptFullReadMapper;
+import com.alexsitiy.script.evaluation.mapper.JSScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.JSScript;
+import com.alexsitiy.script.evaluation.model.JSScriptFilter;
+import com.alexsitiy.script.evaluation.model.JSScriptSort;
 import com.alexsitiy.script.evaluation.model.Status;
+import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JSScriptService {
 
-    private AtomicInteger idCounter = new AtomicInteger();
+    private final JSScriptRepository jsScriptRepository;
 
-    public JSScript create(String jsCode) {
-        // TODO: 18.08.2023 create inner List to save Scripts
-        return new JSScript(
-                idCounter.incrementAndGet(),
-                Status.IN_QUEUE,
-                null,
-                jsCode,
-                new ByteArrayOutputStream(),
-                new ByteArrayOutputStream()
-        );
+    private final JSScriptFullReadMapper jsScriptFullReadMapper;
+    private final JSScriptReadMapper jsScriptReadMapper;
+
+
+    @Autowired
+    public JSScriptService(JSScriptRepository jsScriptRepository,
+                           JSScriptFullReadMapper jsScriptFullReadMapper,
+                           JSScriptReadMapper jsScriptReadMapper) {
+        this.jsScriptRepository = jsScriptRepository;
+        this.jsScriptFullReadMapper = jsScriptFullReadMapper;
+        this.jsScriptReadMapper = jsScriptReadMapper;
     }
+
+    public List<JSScriptReadDto> findAll(JSScriptFilter filter, JSScriptSort sort) {
+        return jsScriptRepository.findAll(filter,sort).stream()
+                .map(jsScriptReadMapper::map)
+                .toList();
+    }
+
+    public Optional<JSScriptFullReadDto> findById(Integer id) {
+       return jsScriptRepository.findById(id)
+               .map(jsScriptFullReadMapper::map);
+    }
+
 }

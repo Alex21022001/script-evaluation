@@ -6,17 +6,11 @@ public class JSScriptReadDto {
     private Integer id;
     private Status status;
     private String executionTime;
-    private String body;
-    private String result;
-    private String errors;
 
-    public JSScriptReadDto(Integer id, Status status, String executionTime, String body, String result, String errors) {
+    public JSScriptReadDto(Integer id, Status status, String executionTime) {
         this.id = id;
         this.status = status;
         this.executionTime = executionTime;
-        this.body = body;
-        this.result = result;
-        this.errors = errors;
     }
 
     public Integer getId() {
@@ -41,29 +35,5 @@ public class JSScriptReadDto {
 
     public void setExecutionTime(String executionTime) {
         this.executionTime = executionTime;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public String getErrors() {
-        return errors;
-    }
-
-    public void setErrors(String errors) {
-        this.errors = errors;
     }
 }

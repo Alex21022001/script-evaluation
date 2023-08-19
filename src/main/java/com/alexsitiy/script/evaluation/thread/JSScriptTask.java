@@ -2,6 +2,7 @@ package com.alexsitiy.script.evaluation.thread;
 
 import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.ResourceLimits;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ public class JSScriptTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
     private final JSScript jsScript;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private  ApplicationEventPublisher eventPublisher;
+
     private Context context;
 
     public JSScriptTask(JSScript jsScript) {
@@ -30,6 +31,9 @@ public class JSScriptTask implements Runnable {
             // May I create Context once per Thread and pass as a parameter to run()?
             context = Context.newBuilder()
                     .allowAllAccess(true)
+                    .engine(Engine.newBuilder()
+                            .option("engine.WarnInterpreterOnly","false")
+                            .build())
 //                    .resourceLimits(ResourceLimits.newBuilder().build())
                     .out(jsScript.getResult())
                     .err(jsScript.getErrors())

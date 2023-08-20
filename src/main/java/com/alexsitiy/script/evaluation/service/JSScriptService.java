@@ -4,15 +4,12 @@ import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.dto.JSScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.JSScriptFullReadMapper;
 import com.alexsitiy.script.evaluation.mapper.JSScriptReadMapper;
-import com.alexsitiy.script.evaluation.model.JSScript;
 import com.alexsitiy.script.evaluation.model.JSScriptFilter;
 import com.alexsitiy.script.evaluation.model.JSScriptSort;
-import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
 

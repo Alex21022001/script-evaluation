@@ -9,22 +9,19 @@ public class JSScript {
     private String body;
     // TODO: 18.08.2023 Thread-safe outputStream
     private ByteArrayOutputStream result;
-    private ByteArrayOutputStream errors;
+    private String errors;
 
 
-    public String calculateExecutionTime(){
-        return executionTime == null? status == Status.IN_QUEUE?
+    public String calculateExecutionTime() {
+        return executionTime == null ? status == Status.IN_QUEUE ?
                 "The code has not been executed yet" : "The code is currently running"
                 : "%d MS".formatted(this.executionTime);
     }
 
-    public String readResult(){
+    public String readResult() {
         return this.result.toString();
     }
 
-    public String readErrors(){
-        return this.errors.toString();
-    }
 
     public Integer getId() {
         return id;
@@ -66,21 +63,18 @@ public class JSScript {
         this.result = result;
     }
 
-    public ByteArrayOutputStream getErrors() {
+    public String getErrors() {
         return errors;
     }
 
-    public void setErrors(ByteArrayOutputStream errors) {
+    public void setErrors(String errors) {
         this.errors = errors;
     }
 
-    public JSScript(Integer id, Status status, Long executionTime, String body, ByteArrayOutputStream result, ByteArrayOutputStream errors) {
-        this.id = id;
+    public JSScript(Status status, String body, ByteArrayOutputStream result) {
         this.status = status;
-        this.executionTime = executionTime;
         this.body = body;
         this.result = result;
-        this.errors = errors;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.thread;
 
+import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -15,11 +16,12 @@ public class JSScriptTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
     private final JSScript jsScript;
-    private  ApplicationEventPublisher eventPublisher;
+    private ApplicationEventPublisher eventPublisher;
     private Context context;
 
-    public JSScriptTask(JSScript jsScript) {
+    public JSScriptTask(JSScript jsScript, ApplicationEventPublisher eventPublisher) {
         this.jsScript = jsScript;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -28,13 +30,12 @@ public class JSScriptTask implements Runnable {
             context = Context.newBuilder()
                     .allowAllAccess(true)
                     .engine(Engine.newBuilder()
-                            .option("engine.WarnInterpreterOnly","false")
+                            .option("engine.WarnInterpreterOnly", "false")
                             .build())
-//                    .resourceLimits(ResourceLimits.newBuilder().build())
                     .out(jsScript.getResult())
-                    .err(jsScript.getErrors())
                     .build();
 
+            eventPublisher.publishEvent(new JSScriptExecutionEvent(jsScript));
             log.debug("Script {} is started", jsScript);
             // TODO: 18.08.2023 JSScriptExecutedEvent
             // TODO: 18.08.2023 Add execution time metric
@@ -52,7 +53,6 @@ public class JSScriptTask implements Runnable {
             context.close();
             try {
                 jsScript.getResult().close();
-                jsScript.getErrors().close();
             } catch (IOException e) {
                 log.error("Failed to close OutputStream");
                 throw new RuntimeException(e);

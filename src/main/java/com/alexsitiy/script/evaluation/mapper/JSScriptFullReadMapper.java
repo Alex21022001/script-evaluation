@@ -15,7 +15,7 @@ public class JSScriptFullReadMapper implements Mapper<JSScript, JSScriptFullRead
                 object.calculateExecutionTime(),
                 object.getBody(),
                 object.readResult(),
-                object.readErrors()
+                object.getErrors()
         );
     }
 }

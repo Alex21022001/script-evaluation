@@ -36,13 +36,11 @@ public class JSScriptRepository {
 
     public JSScript create(String jsCode) {
         JSScript jsScript = new JSScript(
-                null,
                 Status.IN_QUEUE,
-                null,
                 jsCode,
-                new ByteArrayOutputStream(),
-                new ByteArrayOutputStream()
+                new ByteArrayOutputStream(1024 * 1024)
         );
+
         scripts.add(jsScript);
         int id = scripts.indexOf(jsScript);
         jsScript.setId(id);
@@ -50,8 +48,8 @@ public class JSScriptRepository {
         return jsScript;
     }
 
-    public boolean delete(Integer id){
-        if (scripts.size() <= id){
+    public boolean delete(Integer id) {
+        if (scripts.size() <= id) {
             return false;
         }
         scripts.remove(id.intValue());

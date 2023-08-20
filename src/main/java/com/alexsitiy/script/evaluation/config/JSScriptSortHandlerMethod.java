@@ -8,6 +8,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 @Component
 public class JSScriptSortHandlerMethod implements HandlerMethodArgumentResolver {
     @Override
@@ -19,14 +22,9 @@ public class JSScriptSortHandlerMethod implements HandlerMethodArgumentResolver 
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         String mayBeSort = webRequest.getParameter("sort");
         JSScriptSort jsScriptSort = new JSScriptSort();
-        // TODO: 20.08.2023  
+
         if (mayBeSort != null) {
-            for (String sort : mayBeSort.split(",")) {
-                switch (sort) {
-                    case "id" -> jsScriptSort.setById(true);
-                    case "time" -> jsScriptSort.setByExecutionTime(true);
-                }
-            }
+            jsScriptSort.addAll(Arrays.asList(mayBeSort.split(",")));
         }
 
         return jsScriptSort;

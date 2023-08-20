@@ -1,22 +1,18 @@
 package com.alexsitiy.script.evaluation.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JSScriptSort {
-    private boolean byId;
-    private boolean byExecutionTime;
+   private final List<String> sorts = new ArrayList<>();
 
-    public boolean isById() {
-        return byId;
+   public void addAll(List<String> sorts){
+       this.sorts.addAll(sorts);
+   }
+
+    public List<String> getSorts() {
+        return sorts;
     }
 
-    public void setById(boolean byId) {
-        this.byId = byId;
-    }
 
-    public boolean isByExecutionTime() {
-        return byExecutionTime;
-    }
-
-    public void setByExecutionTime(boolean byExecutionTime) {
-        this.byExecutionTime = byExecutionTime;
-    }
 }

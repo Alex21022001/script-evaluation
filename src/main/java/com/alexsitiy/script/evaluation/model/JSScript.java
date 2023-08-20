@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JSScript {
     private Integer id;
     private Status status;
-    private final AtomicLong executionTime = new AtomicLong();
+    private final AtomicLong executionTime = new AtomicLong(0);
     private String body;
     // TODO: 18.08.2023 Thread-safe outputStream
     private ByteArrayOutputStream result;
@@ -23,6 +23,9 @@ public class JSScript {
         return this.result.toString();
     }
 
+    public Long getExecutionTime() {
+        return executionTime.get();
+    }
 
     public Integer getId() {
         return id;

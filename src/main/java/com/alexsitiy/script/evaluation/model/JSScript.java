@@ -1,11 +1,12 @@
 package com.alexsitiy.script.evaluation.model;
 
 import java.io.ByteArrayOutputStream;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JSScript {
     private Integer id;
     private Status status;
-    private Long executionTime;
+    private final AtomicLong executionTime = new AtomicLong();
     private String body;
     // TODO: 18.08.2023 Thread-safe outputStream
     private ByteArrayOutputStream result;
@@ -13,9 +14,9 @@ public class JSScript {
 
 
     public String calculateExecutionTime() {
-        return executionTime == null ? status == Status.IN_QUEUE ?
-                "The code has not been executed yet" : "The code is currently running"
-                : "%d MS".formatted(this.executionTime);
+        return status == Status.IN_QUEUE ?
+                "The code has not been executed yet" : status == Status.EXECUTING ?
+                "The code is currently running" : "%d MS".formatted(executionTime.get());
     }
 
     public String readResult() {
@@ -39,12 +40,8 @@ public class JSScript {
         this.status = status;
     }
 
-    public Long getExecutionTime() {
-        return executionTime;
-    }
-
     public void setExecutionTime(Long executionTime) {
-        this.executionTime = executionTime;
+        this.executionTime.set(executionTime);
     }
 
     public String getBody() {

@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.thread;
 
+import com.alexsitiy.script.evaluation.event.JSScriptCompletionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
@@ -26,6 +27,8 @@ public class JSScriptTask implements Runnable {
 
     @Override
     public void run() {
+        long executionTime;
+        long start;
         try {
             context = Context.newBuilder()
                     .allowAllAccess(true)
@@ -35,12 +38,14 @@ public class JSScriptTask implements Runnable {
                     .out(jsScript.getResult())
                     .build();
 
-            eventPublisher.publishEvent(new JSScriptExecutionEvent(jsScript));
             log.debug("Script {} is started", jsScript);
-            // TODO: 18.08.2023 JSScriptExecutedEvent
-            // TODO: 18.08.2023 Add execution time metric
+            eventPublisher.publishEvent(new JSScriptExecutionEvent(jsScript));
+
+            start = System.currentTimeMillis();
             context.eval("js", jsScript.getBody());
-            // TODO: 18.08.2023 JSScriptCompletedEvent
+            executionTime = System.currentTimeMillis() - start;
+
+            eventPublisher.publishEvent(new JSScriptCompletionEvent(jsScript, executionTime));
             log.debug("Script {} is finished", jsScript);
         } catch (PolyglotException e) {
             // TODO: 18.08.2023 JSScriptFailedEvent

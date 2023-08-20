@@ -38,7 +38,7 @@ public class JSScriptRepository {
         JSScript jsScript = new JSScript(
                 Status.IN_QUEUE,
                 jsCode,
-                new ByteArrayOutputStream(1024 * 1024)
+                new ByteArrayOutputStream()
         );
 
         scripts.add(jsScript);

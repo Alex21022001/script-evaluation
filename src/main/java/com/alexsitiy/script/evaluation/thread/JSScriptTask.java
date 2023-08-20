@@ -2,6 +2,7 @@ package com.alexsitiy.script.evaluation.thread;
 
 import com.alexsitiy.script.evaluation.event.JSScriptCompletionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
+import com.alexsitiy.script.evaluation.event.JSScriptFailureEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -17,7 +18,7 @@ public class JSScriptTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
     private final JSScript jsScript;
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private Context context;
 
     public JSScriptTask(JSScript jsScript, ApplicationEventPublisher eventPublisher) {
@@ -28,15 +29,10 @@ public class JSScriptTask implements Runnable {
     @Override
     public void run() {
         long executionTime;
-        long start;
+        long start = 0;
+
         try {
-            context = Context.newBuilder()
-                    .allowAllAccess(true)
-                    .engine(Engine.newBuilder()
-                            .option("engine.WarnInterpreterOnly", "false")
-                            .build())
-                    .out(jsScript.getResult())
-                    .build();
+            context = initContext();
 
             log.debug("Script {} is started", jsScript);
             eventPublisher.publishEvent(new JSScriptExecutionEvent(jsScript));
@@ -48,11 +44,13 @@ public class JSScriptTask implements Runnable {
             eventPublisher.publishEvent(new JSScriptCompletionEvent(jsScript, executionTime));
             log.debug("Script {} is finished", jsScript);
         } catch (PolyglotException e) {
-            // TODO: 18.08.2023 JSScriptFailedEvent
+            executionTime = System.currentTimeMillis() - start;
+
             if (e.isGuestException()) {
-                log.debug("Script {}", e.getMessage());
+                eventPublisher.publishEvent(new JSScriptFailureEvent(jsScript, executionTime, e.getMessage()));
+                log.debug("Script {} failed",jsScript);
             } else {
-                log.debug("Internal Error: {}", e.getMessage());
+                log.error("Internal Error: {}", e.getMessage());
             }
         } finally {
             context.close();
@@ -63,5 +61,15 @@ public class JSScriptTask implements Runnable {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private Context initContext() {
+        return Context.newBuilder()
+                .allowAllAccess(true)
+                .engine(Engine.newBuilder()
+                        .option("engine.WarnInterpreterOnly", "false")
+                        .build())
+                .out(jsScript.getResult())
+                .build();
     }
 }

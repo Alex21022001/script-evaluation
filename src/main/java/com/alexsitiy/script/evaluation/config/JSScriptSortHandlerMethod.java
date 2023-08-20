@@ -19,7 +19,7 @@ public class JSScriptSortHandlerMethod implements HandlerMethodArgumentResolver 
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         String mayBeSort = webRequest.getParameter("sort");
         JSScriptSort jsScriptSort = new JSScriptSort();
-
+        // TODO: 20.08.2023  
         if (mayBeSort != null) {
             for (String sort : mayBeSort.split(",")) {
                 switch (sort) {

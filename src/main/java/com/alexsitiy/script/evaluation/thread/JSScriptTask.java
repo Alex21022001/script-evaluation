@@ -4,10 +4,8 @@ import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.ResourceLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
@@ -18,7 +16,6 @@ public class JSScriptTask implements Runnable {
 
     private final JSScript jsScript;
     private  ApplicationEventPublisher eventPublisher;
-
     private Context context;
 
     public JSScriptTask(JSScript jsScript) {
@@ -28,7 +25,6 @@ public class JSScriptTask implements Runnable {
     @Override
     public void run() {
         try {
-            // May I create Context once per Thread and pass as a parameter to run()?
             context = Context.newBuilder()
                     .allowAllAccess(true)
                     .engine(Engine.newBuilder()

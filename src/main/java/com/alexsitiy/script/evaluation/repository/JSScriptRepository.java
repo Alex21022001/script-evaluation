@@ -7,7 +7,6 @@ import com.alexsitiy.script.evaluation.model.Status;
 import org.springframework.stereotype.Repository;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,7 +28,7 @@ public class JSScriptRepository {
     }
 
     public Optional<JSScript> findById(Integer id) {
-        if (scripts.size() < id)
+        if (scripts.size() <= id)
             return Optional.empty();
 
         return Optional.ofNullable(scripts.get(id));
@@ -49,5 +48,13 @@ public class JSScriptRepository {
         jsScript.setId(id);
 
         return jsScript;
+    }
+
+    public boolean delete(Integer id){
+        if (scripts.size() <= id){
+            return false;
+        }
+        scripts.remove(id.intValue());
+        return true;
     }
 }

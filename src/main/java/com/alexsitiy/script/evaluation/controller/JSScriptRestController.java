@@ -27,7 +27,7 @@ public class JSScriptRestController {
 
     @GetMapping
     public ResponseEntity<List<JSScriptReadDto>> findAll(JSScriptFilter filter, JSScriptSort sort) {
-        return ResponseEntity.ok(jsService.findAll(filter,sort));
+        return ResponseEntity.ok(jsService.findAll(filter, sort));
     }
 
     @GetMapping("/{id}")
@@ -45,6 +45,7 @@ public class JSScriptRestController {
     @PostMapping("/stop/{id}")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 
-        return ResponseEntity.ok().build();
+        return jsScriptExecutionService.stopById(id)?
+                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

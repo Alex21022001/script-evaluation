@@ -8,7 +8,6 @@ public class JSScript {
     private Status status;
     private final AtomicLong executionTime = new AtomicLong(0);
     private String body;
-    // TODO: 18.08.2023 Thread-safe outputStream
     private ByteArrayOutputStream result;
     private String errors;
 

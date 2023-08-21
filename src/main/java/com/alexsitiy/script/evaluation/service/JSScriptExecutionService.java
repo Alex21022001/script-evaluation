@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class JSScriptExecutionService {
 
-    private final JSScriptRepository jsScriptRepository;
     private final ScriptThreadPool<JSScriptTask, Integer> threadPool;
+    private final JSScriptRepository jsScriptRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     private final JSScriptFullReadMapper jsScriptFullReadMapper;
@@ -36,5 +36,9 @@ public class JSScriptExecutionService {
 
         threadPool.submit(jsScriptTask);
         return jsScriptFullReadMapper.map(jsScript);
+    }
+
+    public boolean stopById(Integer id) {
+        return threadPool.stopTaskById(id);
     }
 }

@@ -7,18 +7,21 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ScriptThread<T extends Runnable> extends Thread{
+public abstract class ScriptThread<T extends Runnable> extends Thread {
 
-    private static final Logger log = LoggerFactory.getLogger(ScriptThread.class);
+    protected static final Logger log = LoggerFactory.getLogger(ScriptThread.class);
 
     private final AtomicBoolean isRunning;
     private final BlockingQueue<T> tasks;
+
     private final AtomicReference<T> currentTask = new AtomicReference<>();
 
-    public ScriptThread(AtomicBoolean isRunning, BlockingQueue<T> tasks) {
+    protected ScriptThread(AtomicBoolean isRunning, BlockingQueue<T> tasks) {
         this.isRunning = isRunning;
         this.tasks = tasks;
     }
+
+    public abstract boolean stopCurrentTask();
 
     @Override
     public void run() {
@@ -36,6 +39,10 @@ public class ScriptThread<T extends Runnable> extends Thread{
                 log.debug("Thread {} is interrupted", this.getName());
             }
         }
+    }
+
+    public AtomicReference<T> getCurrentTask() {
+        return currentTask;
     }
 }
 

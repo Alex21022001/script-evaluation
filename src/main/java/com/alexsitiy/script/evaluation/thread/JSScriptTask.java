@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeoutException;
 
 public class JSScriptTask implements Runnable {
 
@@ -63,6 +66,17 @@ public class JSScriptTask implements Runnable {
         }
     }
 
+    public boolean interruptContext(){
+        try {
+            context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
+            log.debug("Task was stopped");
+            return true;
+        } catch (TimeoutException e) {
+            context.close(true);
+            return true;
+        }
+    }
+
     private Context initContext() {
         return Context.newBuilder()
                 .allowAllAccess(true)
@@ -71,5 +85,9 @@ public class JSScriptTask implements Runnable {
                         .build())
                 .out(jsScript.getResult())
                 .build();
+    }
+
+    public JSScript getJsScript() {
+        return jsScript;
     }
 }

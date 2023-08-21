@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.thread;
 
+import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,21 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class JSThreadPool implements ScriptThreadPool<JSScriptTask, Integer> {
+public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
-    private static final Logger log = LoggerFactory.getLogger(JSThreadPool.class);
+    private static final Logger log = LoggerFactory.getLogger(ScriptThreadPoolImpl.class);
 
-    private final ArrayBlockingQueue<JSScriptTask> tasks;
-    private final List<ScriptThread<JSScriptTask>> threads = new ArrayList<>();
+    private final ArrayBlockingQueue<ScriptTask> tasks;
+    private final List<ScriptThread> threads = new ArrayList<>();
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
-    public JSThreadPool(int nThreads, int queueCapacity) {
+    public ScriptThreadPoolImpl(int nThreads, int queueCapacity) {
         this.tasks = new ArrayBlockingQueue<>(queueCapacity);
+
         for (int i = 0; i < nThreads; i++) {
-            ScriptThread<JSScriptTask> thread = new JSScriptThread(isRunning, tasks);
+            ScriptThread thread = new ScriptThread(isRunning, tasks);
             thread.start();
             threads.add(thread);
         }
@@ -29,28 +30,28 @@ public class JSThreadPool implements ScriptThreadPool<JSScriptTask, Integer> {
     }
 
     @Override
-    public void submit(JSScriptTask task) {
+    public void submit(ScriptTask task) {
         // TODO: 18.08.2023 Add check if there is free place in queue.
         tasks.add(task);
     }
 
     @Override
-    public boolean stopTaskById(Integer id) {
-        if (tasks.removeIf(jsScriptTask -> jsScriptTask.getJsScript().getId().equals(id))) {
+    public <T extends Number> boolean stopTaskById(T id) {
+        if (tasks.removeIf(task -> task.getScript().getId().equals(id))) {
             log.debug("Task with id: {} was deleted from the Queue", id);
             return true;
         }
 
-        Optional<ScriptThread<JSScriptTask>> jsTask = threads.stream()
+        Optional<ScriptThread> jsTask = threads.stream()
                 .filter(thread -> thread.getCurrentTask().get() != null)
-                .filter(thread -> thread.getCurrentTask().get().getJsScript().getId().equals(id))
+                .filter(thread -> thread.getCurrentTask().get().getScript().getId().equals(id))
                 .findFirst();
-
 
         return jsTask
                 .map(ScriptThread::stopCurrentTask)
                 .orElse(false);
     }
+
 
     @Override
     public void shutdown() {

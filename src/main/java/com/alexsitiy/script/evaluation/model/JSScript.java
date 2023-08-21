@@ -3,7 +3,7 @@ package com.alexsitiy.script.evaluation.model;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class JSScript {
+public class JSScript implements Script{
     private Integer id;
     private Status status;
     private final AtomicLong executionTime = new AtomicLong(0);

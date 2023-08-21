@@ -1,7 +1,7 @@
 package com.alexsitiy.script.evaluation.config;
 
-import com.alexsitiy.script.evaluation.thread.JSScriptTask;
-import com.alexsitiy.script.evaluation.thread.JSThreadPool;
+import com.alexsitiy.script.evaluation.thread.task.JSScriptTask;
+import com.alexsitiy.script.evaluation.thread.ScriptThreadPoolImpl;
 import com.alexsitiy.script.evaluation.thread.ScriptThreadPool;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +21,8 @@ public class ThreadConfiguration {
     }
 
     @Bean(destroyMethod = "shutdown")
-    public ScriptThreadPool<JSScriptTask, Integer> scriptThreadPool() {
-        return new JSThreadPool(poolCapacity, queueCapacity);
+    public ScriptThreadPool scriptThreadPool() {
+        return new ScriptThreadPoolImpl(poolCapacity, queueCapacity);
     }
 
     @PreDestroy

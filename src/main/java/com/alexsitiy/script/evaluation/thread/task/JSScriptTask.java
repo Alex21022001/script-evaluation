@@ -1,10 +1,11 @@
-package com.alexsitiy.script.evaluation.thread;
+package com.alexsitiy.script.evaluation.thread.task;
 
 import com.alexsitiy.script.evaluation.event.JSScriptCompletionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptFailureEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptInterruptedEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
+import com.alexsitiy.script.evaluation.model.Script;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
@@ -17,7 +18,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeoutException;
 
-public class JSScriptTask implements Runnable {
+public class JSScriptTask implements ScriptTask{
 
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
@@ -72,15 +73,22 @@ public class JSScriptTask implements Runnable {
         }
     }
 
-    public boolean interruptContext() {
+    @Override
+    public boolean stop() {
         try {
             context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
             log.debug("Task was stopped");
             return true;
         } catch (TimeoutException e) {
             context.close(true);
+            // TODO: 21.08.2023  
             return true;
         }
+    }
+
+    @Override
+    public Script getScript() {
+        return jsScript;
     }
 
     private Context initContext() {
@@ -91,9 +99,5 @@ public class JSScriptTask implements Runnable {
                         .build())
                 .out(jsScript.getResult())
                 .build();
-    }
-
-    public JSScript getJsScript() {
-        return jsScript;
     }
 }

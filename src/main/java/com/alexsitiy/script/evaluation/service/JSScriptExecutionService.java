@@ -4,16 +4,17 @@ import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.mapper.JSScriptFullReadMapper;
 import com.alexsitiy.script.evaluation.model.JSScript;
 import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
-import com.alexsitiy.script.evaluation.thread.JSScriptTask;
+import com.alexsitiy.script.evaluation.thread.task.JSScriptTask;
 import com.alexsitiy.script.evaluation.thread.ScriptThreadPool;
+import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JSScriptExecutionService {
+public class JSScriptExecutionService implements ScriptExecutionService<JSScriptFullReadDto, String> {
 
-    private final ScriptThreadPool<JSScriptTask, Integer> threadPool;
+    private final ScriptThreadPool threadPool;
     private final JSScriptRepository jsScriptRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -21,7 +22,7 @@ public class JSScriptExecutionService {
 
     @Autowired
     public JSScriptExecutionService(JSScriptRepository jsScriptRepository,
-                                    ScriptThreadPool<JSScriptTask, Integer> threadPool,
+                                    ScriptThreadPool threadPool,
                                     ApplicationEventPublisher eventPublisher,
                                     JSScriptFullReadMapper jsScriptFullReadMapper) {
         this.jsScriptRepository = jsScriptRepository;
@@ -32,13 +33,15 @@ public class JSScriptExecutionService {
 
     public JSScriptFullReadDto evaluate(String jsCode) {
         JSScript jsScript = jsScriptRepository.create(jsCode);
-        JSScriptTask jsScriptTask = new JSScriptTask(jsScript, eventPublisher);
+        ScriptTask task = new JSScriptTask(jsScript, eventPublisher);
 
-        threadPool.submit(jsScriptTask);
+        threadPool.submit(task);
         return jsScriptFullReadMapper.map(jsScript);
     }
 
-    public boolean stopById(Integer id) {
+    @Override
+    public <T extends Number> boolean stopById(T id) {
         return threadPool.stopTaskById(id);
     }
+
 }

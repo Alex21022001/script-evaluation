@@ -1,8 +1,12 @@
 package com.alexsitiy.script.evaluation.thread;
 
-public interface ScriptThreadPool<T extends Runnable,I> {
+import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 
-    void submit(T task);
-    boolean stopTaskById(I id);
+public interface ScriptThreadPool {
+
+    void submit(ScriptTask task);
+
+    <T extends Number> boolean stopTaskById(T id);
+
     void shutdown();
 }

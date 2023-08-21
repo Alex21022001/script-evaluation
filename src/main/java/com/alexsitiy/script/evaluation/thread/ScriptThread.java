@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.thread;
 
+import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,21 +8,29 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class ScriptThread<T extends Runnable> extends Thread {
+public class ScriptThread extends Thread {
 
     protected static final Logger log = LoggerFactory.getLogger(ScriptThread.class);
 
     private final AtomicBoolean isRunning;
-    private final BlockingQueue<T> tasks;
+    private final BlockingQueue<ScriptTask> tasks;
 
-    private final AtomicReference<T> currentTask = new AtomicReference<>();
+    private final AtomicReference<ScriptTask> currentTask = new AtomicReference<>();
 
-    protected ScriptThread(AtomicBoolean isRunning, BlockingQueue<T> tasks) {
+    protected ScriptThread(AtomicBoolean isRunning, BlockingQueue<ScriptTask> tasks) {
         this.isRunning = isRunning;
         this.tasks = tasks;
     }
 
-    public abstract boolean stopCurrentTask();
+    public boolean stopCurrentTask() {
+        if (getCurrentTask().get() == null) {
+            log.debug("Couldn't stop current task in {}, because current Task = null", this.getName());
+            return false;
+        }
+
+        ScriptTask task = getCurrentTask().get();
+        return task.stop();
+    }
 
     @Override
     public void run() {
@@ -41,7 +50,7 @@ public abstract class ScriptThread<T extends Runnable> extends Thread {
         }
     }
 
-    public AtomicReference<T> getCurrentTask() {
+    public AtomicReference<ScriptTask> getCurrentTask() {
         return currentTask;
     }
 }

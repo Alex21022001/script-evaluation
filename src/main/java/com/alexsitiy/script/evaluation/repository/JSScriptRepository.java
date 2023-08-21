@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
 @Repository
 public class JSScriptRepository {
@@ -18,40 +19,9 @@ public class JSScriptRepository {
     private final List<JSScript> scripts = new CopyOnWriteArrayList<>();
 
     public List<JSScript> findAll(JSScriptFilter filter, JSScriptSort sort) {
-        if (filter.getStatuses() == null && sort.getSorts().isEmpty())
-            return scripts.stream()
-                    .toList();
-
-        if (!sort.getSorts().isEmpty()) {
-            Comparator<JSScript> comparator = null;
-            for (String value : sort.getSorts()) {
-                comparator = switch (value) {
-                    case "id" ->
-                            (comparator == null) ? Comparator.comparingInt(JSScript::getId) : comparator.thenComparingInt(JSScript::getId);
-                    case "ID" ->
-                            (comparator == null) ? Comparator.comparing(JSScript::getId, Comparator.reverseOrder()) : comparator.thenComparing(JSScript::getId, Comparator.reverseOrder());
-                    case "time" ->
-                            (comparator == null) ? Comparator.comparingLong(JSScript::getExecutionTime) : comparator.thenComparingLong(JSScript::getExecutionTime);
-                    case "TIME" ->
-                            (comparator == null) ? Comparator.comparing(JSScript::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(JSScript::getExecutionTime, Comparator.reverseOrder());
-                    default -> null;
-                };
-            }
-
-            if (filter.getStatuses() != null && comparator != null) {
-                return scripts.stream()
-                        .filter(script -> filter.getStatuses().contains(script.getStatus()))
-                        .sorted(comparator)
-                        .toList();
-            } else if (filter.getStatuses() == null && comparator != null) {
-                return scripts.stream()
-                        .sorted(comparator)
-                        .toList();
-            }
-        }
-
         return scripts.stream()
-                .filter(jsScript -> filter.getStatuses().contains(jsScript.getStatus()))
+                .filter(filteredBy(filter))
+                .sorted(sortedBy(sort))
                 .toList();
     }
 
@@ -82,5 +52,37 @@ public class JSScriptRepository {
         }
         scripts.remove(id.intValue());
         return true;
+    }
+
+    private Predicate<? super JSScript> filteredBy(JSScriptFilter filter) {
+        if (filter.getStatuses() == null)
+            return script -> true;
+
+        return script -> filter.getStatuses().contains(script.getStatus());
+    }
+
+    private Comparator<? super JSScript> sortedBy(JSScriptSort sort) {
+        if (sort.getSorts().isEmpty()) {
+            return (o1, o2) -> 0;
+        }
+
+        Comparator<JSScript> comparator = null;
+
+        for (String value : sort.getSorts()) {
+            comparator = switch (value) {
+                case "id" ->
+                        (comparator == null) ? Comparator.comparingInt(JSScript::getId) : comparator.thenComparingInt(JSScript::getId);
+                case "ID" ->
+                        (comparator == null) ? Comparator.comparing(JSScript::getId, Comparator.reverseOrder()) : comparator.thenComparing(JSScript::getId, Comparator.reverseOrder());
+                case "time" ->
+                        (comparator == null) ? Comparator.comparingLong(JSScript::getExecutionTime) : comparator.thenComparingLong(JSScript::getExecutionTime);
+                case "TIME" ->
+                        (comparator == null) ? Comparator.comparing(JSScript::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(JSScript::getExecutionTime, Comparator.reverseOrder());
+                default -> null;
+            };
+        }
+
+        return comparator == null ?
+                (o1, o2) -> 0 : comparator;
     }
 }

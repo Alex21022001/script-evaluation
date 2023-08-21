@@ -3,6 +3,7 @@ package com.alexsitiy.script.evaluation.thread;
 import com.alexsitiy.script.evaluation.event.JSScriptCompletionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptFailureEvent;
+import com.alexsitiy.script.evaluation.event.JSScriptInterruptedEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -50,8 +51,13 @@ public class JSScriptTask implements Runnable {
             executionTime = System.currentTimeMillis() - start;
 
             if (e.isGuestException()) {
-                eventPublisher.publishEvent(new JSScriptFailureEvent(jsScript, executionTime, e.getMessage()));
-                log.debug("Script {} failed",jsScript);
+                if (e.isInterrupted()) {
+                    eventPublisher.publishEvent(new JSScriptInterruptedEvent(jsScript, executionTime, e.getMessage()));
+                    log.debug("Script {} was interrupted", jsScript);
+                } else {
+                    eventPublisher.publishEvent(new JSScriptFailureEvent(jsScript, executionTime, e.getMessage()));
+                    log.debug("Script {} failed", jsScript);
+                }
             } else {
                 log.error("Internal Error: {}", e.getMessage());
             }
@@ -66,7 +72,7 @@ public class JSScriptTask implements Runnable {
         }
     }
 
-    public boolean interruptContext(){
+    public boolean interruptContext() {
         try {
             context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
             log.debug("Task was stopped");

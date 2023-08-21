@@ -9,7 +9,7 @@ public class JSScript {
     private final AtomicLong executionTime = new AtomicLong(0);
     private String body;
     private ByteArrayOutputStream result;
-    private String errors;
+    private volatile String errors;
 
 
     public String calculateExecutionTime() {

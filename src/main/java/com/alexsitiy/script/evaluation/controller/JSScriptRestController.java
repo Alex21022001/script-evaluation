@@ -39,13 +39,15 @@ public class JSScriptRestController {
 
     @PostMapping("/evaluate")
     public ResponseEntity<JSScriptFullReadDto> evaluate(@RequestBody String jsCode) {
-        return ResponseEntity.ok(jsScriptExecutionService.evaluate(jsCode));
+        return ResponseEntity
+                .status(201)
+                .body(jsScriptExecutionService.evaluate(jsCode));
     }
 
     @PostMapping("/stop/{id}")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 
-        return jsScriptExecutionService.stopById(id)?
+        return jsScriptExecutionService.stopById(id) ?
                 ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

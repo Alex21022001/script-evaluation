@@ -55,7 +55,7 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
     @Override
     public void shutdown() {
+        log.debug("ScriptThreadPool is finished");
         isRunning.set(false);
-        // TODO: 18.08.2023 Stop all executing tasks
     }
 }

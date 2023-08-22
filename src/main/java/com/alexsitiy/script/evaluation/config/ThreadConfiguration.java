@@ -1,9 +1,7 @@
 package com.alexsitiy.script.evaluation.config;
 
-import com.alexsitiy.script.evaluation.thread.task.JSScriptTask;
-import com.alexsitiy.script.evaluation.thread.ScriptThreadPoolImpl;
 import com.alexsitiy.script.evaluation.thread.ScriptThreadPool;
-import jakarta.annotation.PreDestroy;
+import com.alexsitiy.script.evaluation.thread.ScriptThreadPoolImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +23,4 @@ public class ThreadConfiguration {
         return new ScriptThreadPoolImpl(poolCapacity, queueCapacity);
     }
 
-    @PreDestroy
-    public void shutdown() {
-        // TODO: 18.08.2023  
-        scriptThreadPool().shutdown();
-    }
 }

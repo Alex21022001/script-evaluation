@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.thread;
 
+import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,10 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
     private final List<ScriptThread> threads = new ArrayList<>();
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
+    private final Integer queueCapacity;
+
     public ScriptThreadPoolImpl(int nThreads, int queueCapacity) {
+        this.queueCapacity = queueCapacity;
         this.tasks = new ArrayBlockingQueue<>(queueCapacity);
 
         for (int i = 0; i < nThreads; i++) {
@@ -31,7 +35,9 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
     @Override
     public void submit(ScriptTask task) {
-        // TODO: 18.08.2023 Add check if there is free place in queue.
+        if (tasks.size() == queueCapacity)
+            throw new CapacityViolationException("Thread pool capacity exceeded. Please try again later.");
+
         tasks.add(task);
     }
 

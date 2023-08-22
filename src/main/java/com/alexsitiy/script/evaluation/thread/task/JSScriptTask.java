@@ -9,6 +9,7 @@ import com.alexsitiy.script.evaluation.model.Script;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.ResourceLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,7 +19,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeoutException;
 
-public class JSScriptTask implements ScriptTask{
+public class JSScriptTask implements ScriptTask {
 
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
 
@@ -78,12 +79,10 @@ public class JSScriptTask implements ScriptTask{
         try {
             context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
             log.debug("Task was stopped");
-            return true;
         } catch (TimeoutException e) {
             context.close(true);
-            // TODO: 21.08.2023  
-            return true;
         }
+        return true;
     }
 
     @Override
@@ -98,6 +97,9 @@ public class JSScriptTask implements ScriptTask{
                         .option("engine.WarnInterpreterOnly", "false")
                         .build())
                 .out(jsScript.getResult())
+                .resourceLimits(ResourceLimits.newBuilder()
+                        .onLimit(event-> event.getContext().safepoint())
+                        .build())
                 .build();
     }
 }

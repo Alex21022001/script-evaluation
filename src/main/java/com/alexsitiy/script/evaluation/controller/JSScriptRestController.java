@@ -54,6 +54,12 @@ public class JSScriptRestController {
                 ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id) {
+        return jsService.deleteFinishedTask(id) ?
+                ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
     @ExceptionHandler(CapacityViolationException.class)
     public ResponseEntity<ErrorMessage> handleCapacityViolationException(CapacityViolationException ex) {
         return ResponseEntity

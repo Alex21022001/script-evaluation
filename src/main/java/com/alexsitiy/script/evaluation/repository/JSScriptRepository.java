@@ -26,7 +26,7 @@ public class JSScriptRepository {
     }
 
     public Optional<JSScript> findById(Integer id) {
-        if (scripts.size() <= id)
+        if (!isValidId(id))
             return Optional.empty();
 
         return Optional.ofNullable(scripts.get(id));
@@ -47,11 +47,16 @@ public class JSScriptRepository {
     }
 
     public boolean delete(Integer id) {
-        if (scripts.size() <= id) {
+        if (!isValidId(id)) {
             return false;
         }
+
         scripts.remove(id.intValue());
         return true;
+    }
+
+    public boolean delete(Integer id, List<Status> statuses) {
+        return isValidId(id) && scripts.removeIf(script -> script.getId().equals(id) && statuses.contains(script.getStatus()));
     }
 
     private Predicate<? super JSScript> filteredBy(JSScriptFilter filter) {
@@ -84,5 +89,9 @@ public class JSScriptRepository {
 
         return comparator == null ?
                 (o1, o2) -> 0 : comparator;
+    }
+
+    private boolean isValidId(Integer id) {
+        return scripts.size() > id;
     }
 }

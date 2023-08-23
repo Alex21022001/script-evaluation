@@ -98,7 +98,7 @@ public class JSScriptTask implements ScriptTask {
                         .build())
                 .out(jsScript.getResult())
                 .resourceLimits(ResourceLimits.newBuilder()
-                        .onLimit(event-> event.getContext().safepoint())
+//                        .statementLimit(1000,null)
                         .build())
                 .build();
     }

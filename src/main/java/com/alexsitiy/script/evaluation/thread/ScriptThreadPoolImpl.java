@@ -49,8 +49,8 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
         }
 
         Optional<ScriptThread> jsTask = threads.stream()
-                .filter(thread -> thread.getCurrentTask().get() != null)
-                .filter(thread -> thread.getCurrentTask().get().getScript().getId().equals(id))
+                .filter(thread -> thread.getCurrentTaskId() != null)
+                .filter(thread -> thread.getCurrentTaskId().equals(id))
                 .findFirst();
 
         return jsTask

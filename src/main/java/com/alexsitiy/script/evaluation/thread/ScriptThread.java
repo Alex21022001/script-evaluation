@@ -23,12 +23,12 @@ public class ScriptThread extends Thread {
     }
 
     public boolean stopCurrentTask() {
-        if (getCurrentTask().get() == null) {
+        if (this.currentTask.get() == null) {
             log.debug("Couldn't stop current task in {}, because current Task = null", this.getName());
             return false;
         }
 
-        ScriptTask task = getCurrentTask().get();
+        ScriptTask task = this.currentTask.get();
         return task.stop();
     }
 
@@ -50,8 +50,8 @@ public class ScriptThread extends Thread {
         }
     }
 
-    public AtomicReference<ScriptTask> getCurrentTask() {
-        return currentTask;
+    public Number getCurrentTaskId() {
+        return currentTask.get() != null ? currentTask.get().getScript().getId() : null;
     }
 }
 

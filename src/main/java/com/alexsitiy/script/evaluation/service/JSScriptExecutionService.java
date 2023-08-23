@@ -34,7 +34,6 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
 
     @Cacheable(cacheNames = "js-tasks", key = "#jsCode", sync = true)
     public JSScriptFullReadDto evaluate(String jsCode) {
-        System.out.println("Invoked");
         JSScript jsScript = jsScriptRepository.create(jsCode);
         ScriptTask task = new JSScriptTask(jsScript, eventPublisher);
 

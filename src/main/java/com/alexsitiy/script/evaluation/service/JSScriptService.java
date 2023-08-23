@@ -43,7 +43,7 @@ public class JSScriptService {
                 .map(jsScriptFullReadMapper::map);
     }
 
-    public boolean deleteFinishedTask(Integer id) {
+    public boolean deleteExecutedTask(Integer id) {
         return jsScriptRepository.delete(id, List.of(Status.COMPLETED, Status.FAILED, Status.INTERRUPTED));
     }
 }

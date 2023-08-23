@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -60,7 +61,7 @@ class JSScriptRestControllerTest extends IntegrationTestBase {
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andExpectAll(
-                    jsonPath("$.size()").value(4)
+                        jsonPath("$.size()").value(4)
                 );
     }
 
@@ -99,6 +100,13 @@ class JSScriptRestControllerTest extends IntegrationTestBase {
     void stop() throws Exception {
         int id = 5;
         mockMvc.perform(post(BASE_URI + "/stop/{id}", id))
+                .andExpect(status().is(204));
+    }
+
+    @Test
+    @Order(5)
+    void delete() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete(BASE_URI+"/{id}",0))
                 .andExpect(status().is(204));
     }
 }

@@ -8,6 +8,7 @@ import com.alexsitiy.script.evaluation.thread.task.JSScriptTask;
 import com.alexsitiy.script.evaluation.thread.ScriptThreadPool;
 import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,9 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
         this.jsScriptFullReadMapper = jsScriptFullReadMapper;
     }
 
+    @Cacheable(cacheNames = "js-tasks", key = "#jsCode", sync = true)
     public JSScriptFullReadDto evaluate(String jsCode) {
+        System.out.println("Invoked");
         JSScript jsScript = jsScriptRepository.create(jsCode);
         ScriptTask task = new JSScriptTask(jsScript, eventPublisher);
 

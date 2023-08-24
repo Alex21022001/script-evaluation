@@ -61,7 +61,7 @@ class JSScriptRestControllerTest extends IntegrationTestBase {
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andExpectAll(
-                        jsonPath("$.size()").value(4)
+                        jsonPath("_embedded.jSScriptReadDtoList.size()").value(4)
                 );
     }
 

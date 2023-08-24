@@ -9,11 +9,15 @@ import com.alexsitiy.script.evaluation.model.JSScriptSort;
 import com.alexsitiy.script.evaluation.service.JSScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.JSScriptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/scripts/js")
@@ -29,22 +33,45 @@ public class JSScriptRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JSScriptReadDto>> findAll(JSScriptFilter filter, JSScriptSort sort) {
-        return ResponseEntity.ok(jsService.findAll(filter, sort));
+    public ResponseEntity<CollectionModel<JSScriptReadDto>> findAll(JSScriptFilter filter, JSScriptSort sort) {
+
+        List<JSScriptReadDto> scripts = jsService.findAll(filter, sort);
+        scripts.forEach(jsScriptDto -> jsScriptDto
+                .add(linkTo(methodOn(JSScriptRestController.class).findById(jsScriptDto.getId())).withSelfRel()));
+
+        CollectionModel<JSScriptReadDto> collectionModel = CollectionModel.of(scripts,
+                linkTo(methodOn(JSScriptRestController.class).findAll(filter, sort)).withSelfRel());
+
+        return ResponseEntity.ok(collectionModel);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<JSScriptFullReadDto> findById(@PathVariable Integer id) {
         return jsService.findById(id)
-                .map(ResponseEntity::ok)
+                .map(jsScriptDto -> {
+                    jsScriptDto
+                            .add(linkTo(methodOn(JSScriptRestController.class).findById(id)).withSelfRel())
+                            .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
+                            .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
+                            .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
+                    return ResponseEntity.ok(jsScriptDto);
+                })
                 .orElseGet(ResponseEntity.notFound()::build);
     }
 
     @PostMapping("/evaluate")
     public ResponseEntity<JSScriptFullReadDto> evaluate(@RequestBody String jsCode) {
+        JSScriptFullReadDto jsScriptDto = jsScriptExecutionService.evaluate(jsCode);
+        jsScriptDto
+                .add(linkTo(methodOn(JSScriptRestController.class).evaluate(jsCode)).withSelfRel().withType("POST"))
+                .add(linkTo(methodOn(JSScriptRestController.class).findById(jsScriptDto.getId())).withSelfRel().withType("GET").withDeprecation("Obtain JSScript data by its id"))
+                .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
+                .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
+                .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
+
         return ResponseEntity
                 .status(201)
-                .body(jsScriptExecutionService.evaluate(jsCode));
+                .body(jsScriptDto);
     }
 
     @PostMapping("/stop/{id}")

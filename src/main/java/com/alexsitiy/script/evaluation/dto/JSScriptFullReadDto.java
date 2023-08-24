@@ -1,8 +1,9 @@
 package com.alexsitiy.script.evaluation.dto;
 
 import com.alexsitiy.script.evaluation.model.Status;
+import org.springframework.hateoas.RepresentationModel;
 
-public class JSScriptFullReadDto {
+public class JSScriptFullReadDto extends RepresentationModel<JSScriptFullReadDto> {
     private Integer id;
     private Status status;
     private String executionTime;

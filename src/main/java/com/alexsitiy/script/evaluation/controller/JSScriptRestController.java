@@ -1,6 +1,5 @@
 package com.alexsitiy.script.evaluation.controller;
 
-import com.alexsitiy.script.evaluation.dto.ErrorMessage;
 import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.dto.JSScriptReadDto;
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
@@ -13,6 +12,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class JSScriptRestController {
 
         CollectionModel<JSScriptReadDto> collectionModel = CollectionModel.of(scripts,
                 linkTo(methodOn(JSScriptRestController.class).findAll(filter, sort)).withSelfRel());
+
 
         return ResponseEntity.ok(collectionModel);
     }
@@ -88,10 +90,14 @@ public class JSScriptRestController {
     }
 
     @ExceptionHandler(CapacityViolationException.class)
-    public ResponseEntity<ErrorMessage> handleCapacityViolationException(CapacityViolationException ex) {
+    public ResponseEntity<Problem> handleCapacityViolationException(CapacityViolationException ex) {
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(new ErrorMessage(ex.getMessage()));
+                .body(Problem.builder()
+                        .withStatus(Status.SERVICE_UNAVAILABLE)
+                        .withDetail(ex.getMessage())
+                        .build()
+                );
     }
 
 //    @GetMapping("/image")

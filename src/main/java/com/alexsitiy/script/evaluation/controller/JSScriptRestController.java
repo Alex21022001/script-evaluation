@@ -7,6 +7,8 @@ import com.alexsitiy.script.evaluation.model.JSScriptFilter;
 import com.alexsitiy.script.evaluation.model.JSScriptSort;
 import com.alexsitiy.script.evaluation.service.JSScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.JSScriptService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
@@ -21,7 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/scripts/js")
+@RequestMapping("/js/scripts")
 public class JSScriptRestController {
 
     private final JSScriptExecutionService jsScriptExecutionService;
@@ -34,6 +36,11 @@ public class JSScriptRestController {
     }
 
     @GetMapping
+    @Operation(summary = "Obtains all available scripts, includes sorting and filtering",
+            parameters = {
+                    @Parameter(name = "filter", allowEmptyValue = true,example = "IN_QUEUE,COMPLETED,INTERRUPTED"),
+                    @Parameter(name = "sort", allowEmptyValue = true,example = "TIME,id")
+            })
     public ResponseEntity<CollectionModel<JSScriptReadDto>> findAll(JSScriptFilter filter, JSScriptSort sort) {
 
         List<JSScriptReadDto> scripts = jsService.findAll(filter, sort);
@@ -48,6 +55,7 @@ public class JSScriptRestController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Obtains specif script by its id")
     public ResponseEntity<JSScriptFullReadDto> findById(@PathVariable Integer id) {
         return jsService.findById(id)
                 .map(jsScriptDto -> {
@@ -62,6 +70,7 @@ public class JSScriptRestController {
     }
 
     @PostMapping("/evaluate")
+    @Operation(summary = "Evaluates passed script")
     public ResponseEntity<JSScriptFullReadDto> evaluate(@RequestBody String jsCode) {
         JSScriptFullReadDto jsScriptDto = jsScriptExecutionService.evaluate(jsCode);
         jsScriptDto
@@ -77,6 +86,7 @@ public class JSScriptRestController {
     }
 
     @PostMapping("/stop/{id}")
+    @Operation(summary = "Terminates a specific script by its id. Returns 404(Not_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 
         return jsScriptExecutionService.stopById(id) ?
@@ -84,6 +94,7 @@ public class JSScriptRestController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Deletes a COMPLETED,INTERRUPTED,FAILED script by its id")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         return jsService.deleteExecutedTask(id) ?
                 ResponseEntity.noContent().build() : ResponseEntity.notFound().build();

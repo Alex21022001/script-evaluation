@@ -100,27 +100,4 @@ public class JSScriptRestController {
                 );
     }
 
-//    @GetMapping("/image")
-//    public void chunkedImage(HttpServletResponse response){
-//        Resource image = new ClassPathResource("static/chunked.jpg");
-//
-//        response.setHeader("Content-Type", MediaType.IMAGE_JPEG_VALUE);
-//        response.setHeader("Transfer-Encoding","chunked");
-//
-//        try (InputStream inputStream = image.getInputStream()) {
-//            ServletOutputStream outputStream = response.getOutputStream();
-//            byte[] buffer = new byte[4096];
-//            int bytesRead;
-//
-//            while ((bytesRead = inputStream.read(buffer)) != -1){
-//                Thread.sleep(100);
-//                outputStream.write(buffer,0,bytesRead);
-//                outputStream.flush();
-//            }
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 }

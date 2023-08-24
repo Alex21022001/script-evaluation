@@ -18,4 +18,43 @@ This project is a REST API wrapper built with Spring Boot that integrates with t
 
 ## Build and Run Instructions
 1. Clone the repository:
+```bash
+git clone https://github.com/Alex21022001/script-evaluation.git
+```
+2. Go to the directory
+```bash
+cd script-evaluation
+```
+3. Build the project using Maven Wrapper:
+```bash
+./mvnw clean install
+```
+4. Go to the Target directory
+```bash
+cd .\target
+```
+5. Run the app
+```bash
+java -jar script-evaluation-0.0.1-SNAPSHOT.jar
+```
+
+## How to Use
+
+### Swagger UI
+1. After running the application, open your web browser and navigate to: http://localhost:8080/swagger-ui.html
+2. Use the Swagger UI interface to explore the available endpoints, test requests, and view responses.
+
+### Postman
+1. Download and install Postman.
+2. Import the provided Postman collection: **_scripts-evaluation.postman_collection.json_**
+3. You'll find a collection of API requests that you can use to interact with the application.
+
+
+
+
+
+
+
+
+
 

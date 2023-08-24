@@ -1,0 +1,156 @@
+{
+	"info": {
+		"_postman_id": "d796b903-75a5-47ca-9151-8501c90d8626",
+		"name": "scripts-evaluation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20795036"
+	},
+	"item": [
+		{
+			"name": "evaluate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"setId\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"jsId\", jsonData.id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "function calculateSum() {\r\n    console.log('Test1')\r\n    console.log(10/'fafaf')\r\n   return 'test';\r\n}\r\n\r\nfunction calculateSum2() {\r\n   return 'test2';\r\n}\r\n\r\nfunction calculateSum3() {\r\n   return 'test3';\r\n}\r\n\r\ncalculateSum();\r\ncalculateSum2();\r\ncalculateSum3();",
+					"options": {
+						"raw": {
+							"language": "javascript"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{js-script-base-url}}/evaluate",
+					"host": [
+						"{{js-script-base-url}}"
+					],
+					"path": [
+						"evaluate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{js-script-base-url}}/{{jsId}}",
+					"host": [
+						"{{js-script-base-url}}"
+					],
+					"path": [
+						"{{jsId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findAll",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{js-script-base-url}}?statuses=FAILED,COMPLETED,EXECUTING,INTERRUPTED&sort=TIME,id",
+					"host": [
+						"{{js-script-base-url}}"
+					],
+					"query": [
+						{
+							"key": "statuses",
+							"value": "FAILED,COMPLETED,EXECUTING,INTERRUPTED"
+						},
+						{
+							"key": "sort",
+							"value": "TIME,id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stop",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{js-script-base-url}}/stop/{{jsId}}",
+					"host": [
+						"{{js-script-base-url}}"
+					],
+					"path": [
+						"stop",
+						"{{jsId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{js-script-base-url}}/{{jsId}}",
+					"host": [
+						"{{js-script-base-url}}"
+					],
+					"path": [
+						"{{jsId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "jsId",
+			"value": ""
+		},
+		{
+			"key": "js-script-base-url",
+			"value": "http://localhost:8080/js/scripts"
+		}
+	]
+}

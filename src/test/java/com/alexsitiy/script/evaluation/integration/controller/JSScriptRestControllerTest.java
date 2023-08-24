@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class JSScriptRestControllerTest extends IntegrationTestBase {
 
-    private static final String BASE_URI = "/scripts/js";
+    private static final String BASE_URI = "/js/scripts";
     private static final Integer NEXT_SCRIPT_ID = 6;
 
     private final MockMvc mockMvc;

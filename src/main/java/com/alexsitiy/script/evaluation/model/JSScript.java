@@ -3,6 +3,12 @@ package com.alexsitiy.script.evaluation.model;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ *  The implementation of {@linkplain Script} that is used for running JavaScript code.
+ *  It includes: id, {@linkplain Status}, executionTime, body, result, errors.
+ *
+ * @see com.alexsitiy.script.evaluation.thread.task.ScriptTask
+ * */
 public class JSScript implements Script{
     private Integer id;
     private Status status;

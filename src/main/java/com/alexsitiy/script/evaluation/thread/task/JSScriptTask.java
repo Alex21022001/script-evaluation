@@ -19,6 +19,14 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeoutException;
 
+
+/**
+ * The implementation of {@linkplain ScriptTask} for running JavaScript code obtained from {@linkplain JSScript}.
+ * Use {@linkplain Context} to run JavaScript code.
+ * Use {@linkplain ApplicationEventPublisher} to write error if any and change the current status of the {@linkplain JSScript}.
+ *
+ * @author Alex Sitiy
+ * */
 public class JSScriptTask implements ScriptTask {
 
     private static final Logger log = LoggerFactory.getLogger(JSScriptTask.class);
@@ -32,6 +40,9 @@ public class JSScriptTask implements ScriptTask {
         this.eventPublisher = eventPublisher;
     }
 
+    /**
+     * The implementation of {@linkplain Runnable} run()
+     * */
     @Override
     public void run() {
         long executionTime;
@@ -74,6 +85,9 @@ public class JSScriptTask implements ScriptTask {
         }
     }
 
+    /**
+     * Terminate the task that is currently running in run()
+     * */
     @Override
     public boolean stop() {
         try {
@@ -85,11 +99,15 @@ public class JSScriptTask implements ScriptTask {
         return true;
     }
 
+
     @Override
     public Script getScript() {
         return jsScript;
     }
 
+    /**
+     * Create instance of {@linkplain Context} that is used to run JS code
+     * */
     private Context initContext() {
         return Context.newBuilder()
                 .allowAllAccess(true)

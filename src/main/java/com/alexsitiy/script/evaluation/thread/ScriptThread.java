@@ -8,6 +8,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * The implementation of {@linkplain Thread} that is used in {@linkplain ScriptThreadPool}
+ *
+ * */
 public class ScriptThread extends Thread {
 
     protected static final Logger log = LoggerFactory.getLogger(ScriptThread.class);
@@ -22,6 +26,12 @@ public class ScriptThread extends Thread {
         this.tasks = tasks;
     }
 
+    /**
+     *  Stop the task that is currently running in the Thread by using ScriptTask.stop().
+     *
+     * @return true - if the task was terminated, false - if not
+     * @see ScriptTask
+     * */
     public boolean stopCurrentTask() {
         if (this.currentTask.get() == null) {
             log.debug("Couldn't stop current task in {}, because current Task = null", this.getName());
@@ -50,6 +60,11 @@ public class ScriptThread extends Thread {
         }
     }
 
+    /**
+     *  Get the id of the task that is currently running
+     *
+     * @return Any implementation of Number that is the id of the running task
+     * */
     public Number getCurrentTaskId() {
         return currentTask.get() != null ? currentTask.get().getScript().getId() : null;
     }

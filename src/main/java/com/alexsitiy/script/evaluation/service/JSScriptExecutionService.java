@@ -12,6 +12,19 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+/**
+ *  The implementation of {@linkplain ScriptExecutionService} that uses {@linkplain JSScriptFullReadDto} as
+ *  a representation of an evaluation and {@link String} as a script to evaluate JavaScript code.
+ *  <p/>
+ *  Utilizes {@link JSScriptRepository} to create and save the script.
+ *  Uses {@link ScriptThreadPool} to run scripts asynchronously.
+ *  This implementation also uses Spring Cache to prevent running the same scripts.
+ *
+ * @see ScriptTask
+ * @see com.alexsitiy.script.evaluation.model.Script
+ * @see com.alexsitiy.script.evaluation.config.CachingConfiguration
+ * @see org.springframework.cache.CacheManager
+ * */
 @Service
 public class JSScriptExecutionService implements ScriptExecutionService<JSScriptFullReadDto, String> {
 
@@ -32,6 +45,16 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
         this.jsScriptFullReadMapper = jsScriptFullReadMapper;
     }
 
+    /**
+     *  Runs given JavaScript code to evaluate the script. Utilizes {@link Cacheable}
+     *  for saving already passed script in order to prevent them from running one more time and consuming
+     *  system resources.
+     *
+     * @param jsCode JavaScript code passed for evaluation.
+     * @return {@link JSScriptFullReadDto} - as a representation of JavaScript code that contains
+     * all the necessary information about it.
+     * @see JSScriptRepository
+     * */
     @Cacheable(cacheNames = "js-tasks", key = "#jsCode", sync = true)
     public JSScriptFullReadDto evaluate(String jsCode) {
         JSScript jsScript = jsScriptRepository.create(jsCode);
@@ -41,6 +64,12 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
         return jsScriptFullReadMapper.map(jsScript);
     }
 
+    /**
+     *  Stops the script by its id.
+     *
+     * @param id id of the running script
+     * @return true - if the script by id was found and stopped, false - if not.
+     * */
     @Override
     public <T extends Number> boolean stopById(T id) {
         return threadPool.stopTaskById(id);

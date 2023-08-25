@@ -41,7 +41,11 @@ public class JSScriptTask implements ScriptTask {
     }
 
     /**
-     * The implementation of {@linkplain Runnable} run()
+     * The implementation of {@linkplain Runnable} run() that is responsible for
+     * running JavaScript code using JSScript as a holder of data.
+     * Also estimate execution time.
+     * Process possible exception such as {@linkplain PolyglotException} and {@linkplain IOException}
+     * in order to change the status of the task if any occur.
      * */
     @Override
     public void run() {
@@ -86,7 +90,7 @@ public class JSScriptTask implements ScriptTask {
     }
 
     /**
-     * Terminate the task that is currently running in run()
+     * Terminate the task that is currently running in run().
      * */
     @Override
     public boolean stop() {
@@ -106,7 +110,7 @@ public class JSScriptTask implements ScriptTask {
     }
 
     /**
-     * Create instance of {@linkplain Context} that is used to run JS code
+     * Create instance of {@linkplain Context} that is used to run JS code.
      * */
     private Context initContext() {
         return Context.newBuilder()

@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * The implementation of {@linkplain Thread} that is used in {@linkplain ScriptThreadPool}
+ * The implementation of {@linkplain Thread} that is used in {@linkplain ScriptThreadPool}.
  *
  * */
 public class ScriptThread extends Thread {
@@ -29,7 +29,7 @@ public class ScriptThread extends Thread {
     /**
      *  Stop the task that is currently running in the Thread by using ScriptTask.stop().
      *
-     * @return true - if the task was terminated, false - if not
+     * @return true - if the task was terminated, false - if not.
      * @see ScriptTask
      * */
     public boolean stopCurrentTask() {
@@ -42,6 +42,13 @@ public class ScriptThread extends Thread {
         return task.stop();
     }
 
+    /**
+     *  Checking an available task in the task pool (queue) and run if any exists.
+     *  Before running the task adds it to currentTask field to track the currently running task.
+     *  After the task is finished - removes it from currentTask field.
+     *
+     * @throws InterruptedException if the thread was forcibly terminated during its waiting for a task.
+     * */
     @Override
     public void run() {
         while (isRunning.get()) {

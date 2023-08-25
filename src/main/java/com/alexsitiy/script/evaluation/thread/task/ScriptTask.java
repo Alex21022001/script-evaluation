@@ -18,7 +18,7 @@ public interface ScriptTask extends Runnable {
     boolean stop();
 
     /**
-     * Return {@linkplain Script} that is used as main object for executing.
+     * @return  {@linkplain Script} that is used as main object for executing.
      * */
     Script getScript();
 }

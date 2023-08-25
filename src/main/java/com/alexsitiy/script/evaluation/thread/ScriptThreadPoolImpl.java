@@ -12,7 +12,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-
+/**
+ *  The implementation of {@linkplain ScriptThreadPool} that is used to run any {@linkplain ScriptTask}.
+ *  Use {@linkplain ScriptThread} as a Thread for the pool. Use {@linkplain ArrayBlockingQueue} as a queue
+ *  for holding {@linkplain ScriptTask} that will be executed by some generated threads.
+ * */
 public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
     private static final Logger log = LoggerFactory.getLogger(ScriptThreadPoolImpl.class);
@@ -23,6 +27,11 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
     private final Integer queueCapacity;
 
+    /**
+     *  Create instance of {@linkplain ScriptThreadPoolImpl}.
+     * @param nThreads the number of threads which will be added to the pool
+     * @param queueCapacity the max number of possible tasks which can be in the queue
+     * */
     public ScriptThreadPoolImpl(int nThreads, int queueCapacity) {
         this.queueCapacity = queueCapacity;
         this.tasks = new ArrayBlockingQueue<>(queueCapacity);
@@ -35,6 +44,10 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
         log.debug("JSThreadPool is up");
     }
 
+    /**
+     *  Add the task to the queue to run it latter.
+     * @throws CapacityViolationException if there is no spare place in the queue.
+     * */
     @Override
     public void submit(ScriptTask task) {
         if (tasks.size() == queueCapacity)
@@ -43,6 +56,9 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
         tasks.add(task);
     }
 
+    /**
+     *  Stop the task by id, by looking through the queue and threads
+     * */
     @Override
     public <T extends Number> boolean stopTaskById(T id) {
         if (tasks.removeIf(task -> task.getScript().getId().equals(id))) {
@@ -63,7 +79,7 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
 
     @Override
     public void shutdown() {
-        log.debug("ScriptThreadPool is finished");
         isRunning.set(false);
+        log.debug("ScriptThreadPool is finished");
     }
 }

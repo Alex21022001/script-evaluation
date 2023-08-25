@@ -97,10 +97,10 @@ public class JSScriptRepository {
     }
 
     private Predicate<? super JSScript> filteredBy(JSScriptFilter filter) {
-        if (filter.getStatuses() == null)
+        if (filter.statuses() == null)
             return script -> true;
 
-        return script -> filter.getStatuses().contains(script.getStatus());
+        return script -> filter.statuses().contains(script.getStatus());
     }
 
     private Comparator<? super JSScript> sortedBy(JSScriptSort sort) {

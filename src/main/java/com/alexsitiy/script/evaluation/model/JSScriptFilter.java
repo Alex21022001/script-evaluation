@@ -2,14 +2,11 @@ package com.alexsitiy.script.evaluation.model;
 
 import java.util.List;
 
-public class JSScriptFilter {
-    private List<Status> statuses;
+/**
+ * The class is used for holding obtained values from the Request for script filtering.
+ *
+ * @see com.alexsitiy.script.evaluation.repository.JSScriptRepository
+ */
+public record JSScriptFilter(List<Status> statuses) {
 
-    public List<Status> getStatuses() {
-        return statuses;
-    }
-
-    public JSScriptFilter(List<Status> statuses) {
-        this.statuses = statuses;
-    }
 }

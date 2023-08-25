@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * The configuration class that creates an instance of {@link ScriptThreadPool}
+ * to run {@link com.alexsitiy.script.evaluation.thread.task.ScriptTask} there asynchronously.
+ * In order to create the pool, retrieves poolCapacity and queueCapacity from the properties
+ * via {@link Value} if they were not found, uses default values.
+ */
 @Configuration
 public class ThreadConfiguration {
 

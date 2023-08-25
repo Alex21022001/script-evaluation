@@ -7,6 +7,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * The configuration class that is used for
+ * tuning WebMvc via implementing {@link WebMvcConfigurer}.
+ * <br/>
+ * It adds additional {@link HandlerMethodArgumentResolver} as {@link JSScriptSortHandlerMethod}.
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 

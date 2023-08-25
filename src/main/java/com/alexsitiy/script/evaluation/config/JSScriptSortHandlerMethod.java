@@ -8,9 +8,13 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
+/**
+ * The implementation of {@link HandlerMethodArgumentResolver}
+ * that is used to process user's request in order to extract sorting data
+ * and create an instance of {@link JSScriptSort}.
+ */
 @Component
 public class JSScriptSortHandlerMethod implements HandlerMethodArgumentResolver {
     @Override

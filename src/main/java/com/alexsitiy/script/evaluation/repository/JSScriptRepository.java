@@ -25,10 +25,23 @@ public class JSScriptRepository {
     /**
      * Retrieve all scripts from List according to passed {@link JSScriptFilter} and {@link JSScriptSort}.
      * Utilizes {@link Comparator} for sorting and {@link Predicate} for filtering.
+     * <br/>
+     * Sorting includes the following options:
+     * <br/>
+     * 1. id - sorts by script's id (asc)
+     * <br/>
+     * 2. ID - sorts by script;s id (desc)
+     * <br/>
+     * 3. time - sorts by script's execution time (asc)
+     * <br/>
+     * 4. TIME - sorts by script's execution time (desc)
+     * <br/>
+     * Filtering includes: COMPLETED,FAILED,INTERRUPTED,EXECUTING,IN_QUEUE.
      *
      * @param filter is used for filtering scripts.
      * @param sort   is used for soring scripts.
      * @return {@link List} of {@link JSScript}
+     * @see Status
      */
     public List<JSScript> findAll(JSScriptFilter filter, JSScriptSort sort) {
         return scripts.stream()
@@ -51,12 +64,12 @@ public class JSScriptRepository {
     }
 
     /**
-     *  Creates a {@link JSScript} with default params, using a given jsCode and
-     *  adds it to the List. Set obtained index as id of the script.
+     * Creates a {@link JSScript} with default params, using a given jsCode and
+     * adds it to the List. Set obtained index as id of the script.
      *
      * @param jsCode JavaScript code, will be set a body field in {@link JSScript}
      * @return {@link JSScript} - created script.
-     * */
+     */
     public JSScript create(String jsCode) {
         JSScript jsScript = new JSScript(
                 Status.IN_QUEUE,
@@ -70,6 +83,7 @@ public class JSScriptRepository {
 
         return jsScript;
     }
+
     /**
      * Delete the script by its id
      *

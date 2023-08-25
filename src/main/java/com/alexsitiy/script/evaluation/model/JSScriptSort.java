@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  The class that is used for holding values for script sorting.
+ *  The class that is used for holding values for script's sorting.
  *  The instance of this object is created by {@link com.alexsitiy.script.evaluation.config.JSScriptSortHandlerMethod}.
  *
  *

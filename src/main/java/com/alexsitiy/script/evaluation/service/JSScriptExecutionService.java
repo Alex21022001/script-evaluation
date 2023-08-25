@@ -46,13 +46,14 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
     }
 
     /**
-     *  Runs given JavaScript code to evaluate the script. Utilizes {@link Cacheable}
+     *  Runs given JavaScript code in another Thread to evaluate the script. Utilizes {@link Cacheable}
      *  for saving already passed script in order to prevent them from running one more time and consuming
      *  system resources.
      *
      * @param jsCode JavaScript code passed for evaluation.
      * @return {@link JSScriptFullReadDto} - as a representation of JavaScript code that contains
      * all the necessary information about it.
+     * @see ScriptThreadPool
      * @see JSScriptRepository
      * */
     @Cacheable(cacheNames = "js-tasks", key = "#jsCode", sync = true)

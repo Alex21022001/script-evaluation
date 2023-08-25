@@ -13,11 +13,23 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
+/**
+ * The repository that is used for CRUD operations over the {@link JSScript}.
+ * It makes use of {@link CopyOnWriteArrayList} as the main thread-safe storage for scripts.
+ */
 @Repository
 public class JSScriptRepository {
 
     private final List<JSScript> scripts = new CopyOnWriteArrayList<>();
 
+    /**
+     * Retrieve all scripts from List according to passed {@link JSScriptFilter} and {@link JSScriptSort}.
+     * Utilizes {@link Comparator} for sorting and {@link Predicate} for filtering.
+     *
+     * @param filter is used for filtering scripts.
+     * @param sort   is used for soring scripts.
+     * @return {@link List} of {@link JSScript}
+     */
     public List<JSScript> findAll(JSScriptFilter filter, JSScriptSort sort) {
         return scripts.stream()
                 .filter(filteredBy(filter))
@@ -25,6 +37,12 @@ public class JSScriptRepository {
                 .toList();
     }
 
+    /**
+     * Look for a specific script by its id and return it.
+     *
+     * @param id id of the searching script.
+     * @return {@link Optional<JSScript>}
+     */
     public Optional<JSScript> findById(Integer id) {
         if (!isValidId(id))
             return Optional.empty();
@@ -32,6 +50,13 @@ public class JSScriptRepository {
         return Optional.ofNullable(scripts.get(id));
     }
 
+    /**
+     *  Creates a {@link JSScript} with default params, using a given jsCode and
+     *  adds it to the List.
+     *
+     * @param jsCode JavaScript code, will be set a body field in {@link JSScript}
+     * @return {@link JSScript} - created script.
+     * */
     public JSScript create(String jsCode) {
         JSScript jsScript = new JSScript(
                 Status.IN_QUEUE,
@@ -45,7 +70,12 @@ public class JSScriptRepository {
 
         return jsScript;
     }
-
+    /**
+     * Delete the script by its id
+     *
+     * @param id the id of the script
+     * @return true - if the script was deleted, false - not.
+     */
     public boolean delete(Integer id) {
         if (!isValidId(id)) {
             return false;
@@ -55,6 +85,13 @@ public class JSScriptRepository {
         return true;
     }
 
+    /**
+     * Delete the script by its id according to the given statuses.
+     *
+     * @param id the id of the script
+     * @return true - if the script was deleted, false - not.
+     * @see Status
+     */
     public boolean delete(Integer id, List<Status> statuses) {
         return isValidId(id) && scripts.removeIf(script -> script.getId().equals(id) && statuses.contains(script.getStatus()));
     }

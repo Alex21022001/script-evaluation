@@ -3,6 +3,14 @@ package com.alexsitiy.script.evaluation.dto;
 import com.alexsitiy.script.evaluation.model.Status;
 import org.springframework.hateoas.RepresentationModel;
 
+/**
+ *  The representation of {@link com.alexsitiy.script.evaluation.model.JSScript} which
+ *  possess only the main data of the script. It's used to inform user. The class extends {@link RepresentationModel}
+ *  that used for HATEOAS implementation.
+ *
+ * @see com.alexsitiy.script.evaluation.mapper.JSScriptReadMapper
+ * @see com.alexsitiy.script.evaluation.service.JSScriptService
+ * */
 public class JSScriptReadDto extends RepresentationModel<JSScriptFullReadDto> {
     private Integer id;
     private Status status;

@@ -52,7 +52,7 @@ public class JSScriptRepository {
 
     /**
      *  Creates a {@link JSScript} with default params, using a given jsCode and
-     *  adds it to the List.
+     *  adds it to the List. Set obtained index as id of the script.
      *
      * @param jsCode JavaScript code, will be set a body field in {@link JSScript}
      * @return {@link JSScript} - created script.

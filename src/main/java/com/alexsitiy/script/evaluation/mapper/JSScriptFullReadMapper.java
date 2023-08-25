@@ -5,7 +5,7 @@ import com.alexsitiy.script.evaluation.model.JSScript;
 import org.springframework.stereotype.Component;
 
 /**
- *  The class implements {@link Mapper} interface to map {@link JSScript} tp {@link JSScriptFullReadDto}.
+ *  The class implements {@link Mapper} interface to map {@link JSScript} to {@link JSScriptFullReadDto}.
  *  It also has {@link Component} annotation in order to create a Spring Bean of this class and inject is
  *  via DI.
  * */

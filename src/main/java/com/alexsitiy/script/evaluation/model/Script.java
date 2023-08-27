@@ -91,7 +91,8 @@ public class Script implements Runnable {
                 log.error("Internal Error: {}", e.getMessage());
             }
         } finally {
-            context.close();
+            this.context.close();
+
             try {
                 this.result.close();
                 this.errors.close();
@@ -156,5 +157,38 @@ public class Script implements Runnable {
                ", status=" + status +
                ", executionTime=" + executionTime +
                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Script script = (Script) o;
+
+        if (executionTime != script.executionTime) return false;
+        if (id != null ? !id.equals(script.id) : script.id != null) return false;
+        if (status != script.status) return false;
+        if (scheduledTime != null ? !scheduledTime.equals(script.scheduledTime) : script.scheduledTime != null)
+            return false;
+        if (body != null ? !body.equals(script.body) : script.body != null) return false;
+        if (result != null ? !result.equals(script.result) : script.result != null) return false;
+        if (errors != null ? !errors.equals(script.errors) : script.errors != null) return false;
+        if (stackTrace != null ? !stackTrace.equals(script.stackTrace) : script.stackTrace != null) return false;
+        return context != null ? context.equals(script.context) : script.context == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result1 = id != null ? id.hashCode() : 0;
+        result1 = 31 * result1 + (status != null ? status.hashCode() : 0);
+        result1 = 31 * result1 + (int) (executionTime ^ (executionTime >>> 32));
+        result1 = 31 * result1 + (scheduledTime != null ? scheduledTime.hashCode() : 0);
+        result1 = 31 * result1 + (body != null ? body.hashCode() : 0);
+        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
+        result1 = 31 * result1 + (errors != null ? errors.hashCode() : 0);
+        result1 = 31 * result1 + (stackTrace != null ? stackTrace.hashCode() : 0);
+        result1 = 31 * result1 + (context != null ? context.hashCode() : 0);
+        return result1;
     }
 }

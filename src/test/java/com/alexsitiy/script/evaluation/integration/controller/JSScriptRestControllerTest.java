@@ -2,7 +2,7 @@ package com.alexsitiy.script.evaluation.integration.controller;
 
 import com.alexsitiy.script.evaluation.integration.IntegrationTestBase;
 import com.alexsitiy.script.evaluation.model.Status;
-import com.alexsitiy.script.evaluation.service.JSScriptExecutionService;
+import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +30,10 @@ class JSScriptRestControllerTest extends IntegrationTestBase {
     private static final Integer NEXT_SCRIPT_ID = 6;
 
     private final MockMvc mockMvc;
-    private final JSScriptExecutionService jsService;
+    private final ScriptExecutionService jsService;
 
     @Autowired
-    JSScriptRestControllerTest(MockMvc mockMvc, JSScriptExecutionService jsService) {
+    JSScriptRestControllerTest(MockMvc mockMvc, ScriptExecutionService jsService) {
         this.mockMvc = mockMvc;
         this.jsService = jsService;
     }

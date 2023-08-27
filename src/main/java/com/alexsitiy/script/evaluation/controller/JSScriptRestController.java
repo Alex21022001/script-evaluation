@@ -4,12 +4,14 @@ import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.dto.JSScriptReadDto;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.JSScriptFilter;
 import com.alexsitiy.script.evaluation.model.JSScriptSort;
 import com.alexsitiy.script.evaluation.model.Script;
-import com.alexsitiy.script.evaluation.service.JSScriptExecutionService;
+import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.JSScriptService;
+import com.alexsitiy.script.evaluation.service.ScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  *
  * @see com.alexsitiy.script.evaluation.model.JSScript
  * @see JSScriptService
- * @see JSScriptExecutionService
+ * @see ScriptExecutionService
  * @see JSScriptReadDto
  * @see JSScriptFullReadDto
  * @see ResponseEntity
@@ -54,13 +56,15 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/js/scripts")
 public class JSScriptRestController {
 
-    private final JSScriptExecutionService jsScriptExecutionService;
+    private final ScriptExecutionService scriptExecutionService;
+    private final ScriptService scriptService;
     private final JSScriptService jsService;
     private final ScriptReadMapper scriptReadMapper;
 
     @Autowired
-    public JSScriptRestController(JSScriptExecutionService jsScriptExecutionService, JSScriptService jsService, ScriptReadMapper scriptReadMapper) {
-        this.jsScriptExecutionService = jsScriptExecutionService;
+    public JSScriptRestController(ScriptExecutionService scriptExecutionService, ScriptService scriptService, JSScriptService jsService, ScriptReadMapper scriptReadMapper) {
+        this.scriptExecutionService = scriptExecutionService;
+        this.scriptService = scriptService;
         this.jsService = jsService;
         this.scriptReadMapper = scriptReadMapper;
     }
@@ -126,17 +130,20 @@ public class JSScriptRestController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Obtains specif script by its id")
-    public ResponseEntity<JSScriptFullReadDto> findById(@PathVariable Integer id) {
-        return jsService.findById(id)
-                .map(jsScriptDto -> {
-                    jsScriptDto
-                            .add(linkTo(methodOn(JSScriptRestController.class).findById(id)).withSelfRel())
-                            .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
-                            .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
-                            .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
-                    return ResponseEntity.ok(jsScriptDto);
-                })
-                .orElseGet(ResponseEntity.notFound()::build);
+    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id) {
+        Script script = scriptService.findById(id);
+        ScriptReadDto dto = scriptReadMapper.map(script);
+        return ResponseEntity.ok(dto);
+//        return jsService.findById(id)
+//                .map(jsScriptDto -> {
+//                    jsScriptDto
+//                            .add(linkTo(methodOn(JSScriptRestController.class).findById(id)).withSelfRel())
+//                            .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
+//                            .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
+//                            .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
+//                    return ResponseEntity.ok(jsScriptDto);
+//                })
+//                .orElseGet(ResponseEntity.notFound()::build);
     }
 
     /**
@@ -146,7 +153,7 @@ public class JSScriptRestController {
      * @param jsCode JavaScript code that is evaluated.
      * @return {@link ResponseEntity} that comprises {@link JSScriptFullReadDto}.
      * It also returns 201(CREATED) status code.
-     * @see JSScriptExecutionService
+     * @see ScriptExecutionService
      * @see com.alexsitiy.script.evaluation.thread.ScriptThreadPool
      * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
      * @see HttpStatus
@@ -155,7 +162,7 @@ public class JSScriptRestController {
     @Operation(summary = "Evaluates passed script")
     public ResponseEntity<ScriptReadDto> evaluate(@RequestBody String jsCode) {
         // TODO: 27.08.2023 Status 202 and return object with links
-        Script script = jsScriptExecutionService.evaluate(jsCode);
+        Script script = scriptExecutionService.evaluate(jsCode);
         ScriptReadDto dto = scriptReadMapper.map(script);
 
         return ResponseEntity
@@ -170,7 +177,7 @@ public class JSScriptRestController {
      * @param id running script's id
      * @return 204(NO_CONTENT) if script was stopped, 404(NOT_FOUND) - if the script was not found.
      * @see com.alexsitiy.script.evaluation.model.JSScript
-     * @see JSScriptExecutionService
+     * @see ScriptExecutionService
      * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
      * @see HttpStatus
      */
@@ -190,7 +197,7 @@ public class JSScriptRestController {
      * @param id script's id
      * @return 204(NO_CONTENT) if script was deleted, 404(NOT_FOUND) - if the script was not found.
      * @see com.alexsitiy.script.evaluation.model.JSScript
-     * @see JSScriptExecutionService
+     * @see ScriptExecutionService
      * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
      * @see HttpStatus
      */
@@ -221,6 +228,11 @@ public class JSScriptRestController {
                         .withDetail(ex.getMessage())
                         .build()
                 );
+    }
+
+    @ExceptionHandler(NoSuchScriptException.class)
+    public ResponseEntity<?> handleNoSuchScriptException(NoSuchScriptException e){
+        return ResponseEntity.notFound().build();
     }
 
 }

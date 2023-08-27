@@ -73,7 +73,7 @@ public class ScriptThread extends Thread {
      * @return Any implementation of Number that is the id of the running task
      * */
     public Number getCurrentTaskId() {
-        return currentTask.get() != null ? currentTask.get().getScript().getId() : null;
+        return currentTask.get() != null ? 1 : null;
     }
 }
 

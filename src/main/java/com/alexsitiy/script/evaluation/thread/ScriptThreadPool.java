@@ -8,7 +8,6 @@ import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
  * control over executing tasks as stopping the task by its id.
  *
  * @author Alex Sitiy
- * @see com.alexsitiy.script.evaluation.model.Script
  * @see ScriptThread
  * */
 public interface ScriptThreadPool {

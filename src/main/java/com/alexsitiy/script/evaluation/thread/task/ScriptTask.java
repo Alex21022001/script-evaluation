@@ -1,7 +1,5 @@
 package com.alexsitiy.script.evaluation.thread.task;
 
-import com.alexsitiy.script.evaluation.model.Script;
-
 /**
  * The ScriptTask interface should be implemented by any
  * class whose instances are intended to be executed by a {@link com.alexsitiy.script.evaluation.thread.ScriptThreadPool}.
@@ -18,7 +16,7 @@ public interface ScriptTask extends Runnable {
     boolean stop();
 
     /**
-     * @return  {@linkplain Script} that is used as main object for executing.
+     * @return  {@linkplain} that is used as main object for executing.
      * */
-    Script getScript();
+    Object getScript();
 }

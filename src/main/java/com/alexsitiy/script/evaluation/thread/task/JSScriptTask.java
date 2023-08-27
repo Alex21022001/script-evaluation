@@ -5,7 +5,6 @@ import com.alexsitiy.script.evaluation.event.JSScriptExecutionEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptFailureEvent;
 import com.alexsitiy.script.evaluation.event.JSScriptInterruptedEvent;
 import com.alexsitiy.script.evaluation.model.JSScript;
-import com.alexsitiy.script.evaluation.model.Script;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
@@ -105,7 +104,7 @@ public class JSScriptTask implements ScriptTask {
 
 
     @Override
-    public Script getScript() {
+    public Object getScript() {
         return jsScript;
     }
 

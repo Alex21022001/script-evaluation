@@ -2,9 +2,12 @@ package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.dto.JSScriptReadDto;
+import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.JSScriptFilter;
 import com.alexsitiy.script.evaluation.model.JSScriptSort;
+import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.service.JSScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.JSScriptService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,11 +56,13 @@ public class JSScriptRestController {
 
     private final JSScriptExecutionService jsScriptExecutionService;
     private final JSScriptService jsService;
+    private final ScriptReadMapper scriptReadMapper;
 
     @Autowired
-    public JSScriptRestController(JSScriptExecutionService jsScriptExecutionService, JSScriptService jsService) {
+    public JSScriptRestController(JSScriptExecutionService jsScriptExecutionService, JSScriptService jsService, ScriptReadMapper scriptReadMapper) {
         this.jsScriptExecutionService = jsScriptExecutionService;
         this.jsService = jsService;
+        this.scriptReadMapper = scriptReadMapper;
     }
 
     /**
@@ -148,18 +153,14 @@ public class JSScriptRestController {
      */
     @PostMapping("/evaluate")
     @Operation(summary = "Evaluates passed script")
-    public ResponseEntity<JSScriptFullReadDto> evaluate(@RequestBody String jsCode) {
-        JSScriptFullReadDto jsScriptDto = jsScriptExecutionService.evaluate(jsCode);
-        jsScriptDto
-                .add(linkTo(methodOn(JSScriptRestController.class).evaluate(jsCode)).withSelfRel().withType("POST"))
-                .add(linkTo(methodOn(JSScriptRestController.class).findById(jsScriptDto.getId())).withSelfRel().withType("GET").withDeprecation("Obtain JSScript data by its id"))
-                .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
-                .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
-                .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
+    public ResponseEntity<ScriptReadDto> evaluate(@RequestBody String jsCode) {
+        // TODO: 27.08.2023 Status 202 and return object with links
+        Script script = jsScriptExecutionService.evaluate(jsCode);
+        ScriptReadDto dto = scriptReadMapper.map(script);
 
         return ResponseEntity
-                .status(201)
-                .body(jsScriptDto);
+                .status(202)
+                .body(dto);
     }
 
     /**
@@ -177,8 +178,9 @@ public class JSScriptRestController {
     @Operation(summary = "Terminates a specific script by its id. Returns 404(NOT_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 
-        return jsScriptExecutionService.stopById(id) ?
-                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+//        return jsScriptExecutionService.stopById(id) ?
+//                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return null;
     }
 
     /**

@@ -7,6 +7,7 @@ package com.alexsitiy.script.evaluation.mapper;
  * @param <F> the object that is used as a data for mapping.
  * @param <T> the object which {@link F} is mapped to.
  */
+@FunctionalInterface
 public interface Mapper<F, T> {
 
     /**

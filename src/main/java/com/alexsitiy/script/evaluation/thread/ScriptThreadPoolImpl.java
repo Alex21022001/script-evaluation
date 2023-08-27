@@ -61,10 +61,10 @@ public class ScriptThreadPoolImpl implements ScriptThreadPool {
      * */
     @Override
     public <T extends Number> boolean stopTaskById(T id) {
-        if (tasks.removeIf(task -> task.getScript().getId().equals(id))) {
-            log.debug("Task with id: {} was deleted from the Queue", id);
-            return true;
-        }
+//        if (tasks.removeIf(task -> task.getScript().getId().equals(id))) {
+//            log.debug("Task with id: {} was deleted from the Queue", id);
+//            return true;
+//        }
 
         Optional<ScriptThread> jsTask = threads.stream()
                 .filter(thread -> thread.getCurrentTaskId() != null)

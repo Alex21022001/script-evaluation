@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @see com.alexsitiy.script.evaluation.thread.task.ScriptTask
  */
-public class JSScript implements Script {
+public class JSScript{
     private Integer id;
     private Status status;
     private final AtomicLong executionTime = new AtomicLong(0);

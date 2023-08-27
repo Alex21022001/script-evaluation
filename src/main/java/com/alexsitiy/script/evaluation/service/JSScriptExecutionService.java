@@ -2,9 +2,8 @@ package com.alexsitiy.script.evaluation.service;
 
 import com.alexsitiy.script.evaluation.dto.JSScriptFullReadDto;
 import com.alexsitiy.script.evaluation.mapper.JSScriptFullReadMapper;
-import com.alexsitiy.script.evaluation.model.JSScript;
+import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
-import com.alexsitiy.script.evaluation.thread.task.JSScriptTask;
 import com.alexsitiy.script.evaluation.thread.ScriptThreadPool;
 import com.alexsitiy.script.evaluation.thread.task.ScriptTask;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
- *  The implementation of {@linkplain ScriptExecutionService} that uses {@linkplain JSScriptFullReadDto} as
+ *  The implementation of  that uses {@linkplain JSScriptFullReadDto} as
  *  a representation of an evaluation and {@link String} as a script to evaluate JavaScript code.
  *  <p/>
  *  Utilizes {@link JSScriptRepository} to create and save the script.
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @see org.springframework.cache.CacheManager
  * */
 @Service
-public class JSScriptExecutionService implements ScriptExecutionService<JSScriptFullReadDto, String> {
+public class JSScriptExecutionService {
 
     private final ScriptThreadPool threadPool;
     private final JSScriptRepository jsScriptRepository;
@@ -56,13 +55,11 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
      * @see ScriptThreadPool
      * @see JSScriptRepository
      * */
-    @Cacheable(cacheNames = "js-tasks", key = "#jsCode", sync = true)
-    public JSScriptFullReadDto evaluate(String jsCode) {
-        JSScript jsScript = jsScriptRepository.create(jsCode);
-        ScriptTask task = new JSScriptTask(jsScript, eventPublisher);
 
-        threadPool.submit(task);
-        return jsScriptFullReadMapper.map(jsScript);
+    public Script evaluate(String jsCode) {
+        Script script = new Script(jsCode);
+        // TODO: 27.08.2023 save script
+        return script;
     }
 
     /**
@@ -71,9 +68,8 @@ public class JSScriptExecutionService implements ScriptExecutionService<JSScript
      * @param id id of the running script
      * @return true - if the script by id was found and stopped, false - if not.
      * */
-    @Override
-    public <T extends Number> boolean stopById(T id) {
-        return threadPool.stopTaskById(id);
+    public void stopById(Integer id){
+
     }
 
 }

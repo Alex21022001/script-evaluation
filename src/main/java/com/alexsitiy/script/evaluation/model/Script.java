@@ -3,7 +3,6 @@ package com.alexsitiy.script.evaluation.model;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.ResourceLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Script implements Runnable {
 
@@ -25,40 +24,56 @@ public class Script implements Runnable {
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     private final Integer id;
-    private volatile Status status;
+    private final AtomicReference<Status> status;
     private volatile long executionTime;
     private volatile Instant scheduledTime;
     private final String body;
     private final ByteArrayOutputStream result;
     private final ByteArrayOutputStream errors;
 
+    private CompletableFuture<Void> task;
+
+    public void setTask(CompletableFuture<Void> task) {
+        this.task = task;
+    }
+
     private final Context context;
 
     public Script(String body) {
         this.id = idGenerator.incrementAndGet();
-        this.status = Status.IN_QUEUE;
+        this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
         // TODO: 28.08.2023 Use one instance for result and errors
         this.result = new ByteArrayOutputStream();
         this.errors = new ByteArrayOutputStream();
-        this.context = Context.newBuilder()
+        this.context = createContext();
+    }
+
+    private Context createContext() {
+        return Context.newBuilder("js")
                 .allowAllAccess(true)
                 .engine(Engine.newBuilder()
                         .option("engine.WarnInterpreterOnly", "false")
                         .build())
                 .err(this.errors)
                 .out(this.result)
-                .resourceLimits(ResourceLimits.newBuilder()
-//                        .statementLimit(1000,null)
-                        .build())
                 .build();
     }
 
     public void stop() {
-        try {
-            this.context.interrupt(Duration.of(2, ChronoUnit.SECONDS));
-        } catch (TimeoutException e) {
-            this.context.close(true);
+        if (!task.isDone()) {
+            task.cancel(true);
+            try {
+                context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
+            } catch (TimeoutException e) {
+                context.close(true);
+            } finally {
+                if (this.status.get() == Status.IN_QUEUE) {
+                    this.status.set(Status.INTERRUPTED);
+                    this.errors.writeBytes("Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
+                }
+                log.debug("Script {} was forcibly closed", this);
+            }
         }
     }
 
@@ -68,27 +83,27 @@ public class Script implements Runnable {
 
         try {
             log.debug("Script {} is started", this);
-            this.status = Status.EXECUTING;
+            this.status.set(Status.EXECUTING);
             this.scheduledTime = Instant.now();
 
             start = System.currentTimeMillis();
             context.eval("js", this.body);
             this.executionTime = System.currentTimeMillis() - start;
 
-            this.status = Status.COMPLETED;
+            this.status.set(Status.COMPLETED);
             log.debug("Script {} is completed successfully", this);
         } catch (PolyglotException e) {
             this.executionTime = System.currentTimeMillis() - start;
 
             if (e.isGuestException()) {
                 if (e.isInterrupted()) {
-                    this.status = Status.INTERRUPTED;
+                    this.status.set(Status.INTERRUPTED);
                     this.errors.writeBytes(e.getMessage().getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} was interrupted", this);
                 } else {
                     // TODO: 28.08.2023 Convert stackTrace to OutputStream
-                    this.status = Status.FAILED;
-                    this.errors.writeBytes(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8));
+                    this.status.set(Status.FAILED);
+                    this.errors.writeBytes(e.getMessage().getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} is failed", this);
                 }
             } else {
@@ -119,11 +134,7 @@ public class Script implements Runnable {
     }
 
     public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
+        return status.get();
     }
 
     public long getExecutionTime() {

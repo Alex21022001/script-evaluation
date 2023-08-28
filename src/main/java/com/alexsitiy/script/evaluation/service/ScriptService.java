@@ -3,6 +3,8 @@ package com.alexsitiy.script.evaluation.service;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -15,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 // */
 @Service
 public class ScriptService {
+
+    private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 
     private final Map<Integer, Script> scripts = new ConcurrentHashMap<>();
 
@@ -47,11 +51,8 @@ public class ScriptService {
         return script;
     }
 
-    public Script create(String body) {
-        Script script = new Script(body);
+    public void save(Script script) {
         scripts.put(script.getId(), script);
-
-        return script;
     }
 
     /**
@@ -68,6 +69,7 @@ public class ScriptService {
 
         if (status == Status.COMPLETED || status == Status.INTERRUPTED || status == Status.FAILED) {
             scripts.remove(id, script);
+            log.debug("Script {} was deleted", script);
         } else {
             throw new IllegalStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
         }

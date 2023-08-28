@@ -173,6 +173,7 @@ public class ScriptRestController {
     @PostMapping("/stop/{id}")
     @Operation(summary = "Terminates a specific script by its id. Returns 404(NOT_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
+
         scriptExecutionService.stopById(id);
         return ResponseEntity.noContent().build();
     }

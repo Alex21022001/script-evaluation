@@ -1,11 +1,15 @@
 package com.alexsitiy.script.evaluation.service;
 
+import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The implementation of  that uses {@linkplain } as
@@ -39,15 +43,21 @@ public class ScriptExecutionService {
      * system resources.
      *
      * @param jsCode JavaScript code passed for evaluation.
-     * @return  - as a representation of JavaScript code that contains
+     * @return - as a representation of JavaScript code that contains
      * all the necessary information about it.
      * @see JSScriptRepository
      */
 
     public Script evaluate(String jsCode) {
-        Script script = scriptService.create(jsCode);
-
-        taskExecutor.execute(script);
+        Script script = new Script(jsCode);
+        try {
+            CompletableFuture<Void> task = CompletableFuture
+                    .runAsync(script, taskExecutor);
+            script.setTask(task);
+            scriptService.save(script);
+        } catch (TaskRejectedException e) {
+            throw new CapacityViolationException("There is no free space in the pool");
+        }
 
         return script;
     }

@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
+import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -19,9 +20,17 @@ public class ScriptControllerAdvice {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ProblemDetail handleNoSuchScriptException(IllegalStateException e) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    public ProblemDetail handleIllegalStateException(IllegalStateException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage());
         problemDetail.setTitle("Script is not finished yet");
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(CapacityViolationException.class)
+    public ProblemDetail handleCapacityViolationException(CapacityViolationException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
+        problemDetail.setTitle("To many request, try latter");
 
         return problemDetail;
     }

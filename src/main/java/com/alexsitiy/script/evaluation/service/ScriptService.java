@@ -19,7 +19,7 @@ public class ScriptService {
     private final Map<Integer, Script> scripts = new ConcurrentHashMap<>();
 
 
-//    /**
+    //    /**
 //     * Look for all {@link com.alexsitiy.script.evaluation.model.JSScript} according to passing
 //     * {@link JSScriptFilter} and {@link JSScriptSort} and return their representations in the {@link List}.
 //     *
@@ -42,7 +42,7 @@ public class ScriptService {
         Script script = scripts.get(id);
 
         if (script == null)
-            throw new NoSuchScriptException("There is no such a Script with id:%d".formatted(id));
+            throw new NoSuchScriptException("There is no such a Script with id:%d".formatted(id), id);
 
         return script;
     }
@@ -62,7 +62,14 @@ public class ScriptService {
      * @return true - if the script was deleted, false - not.
      * @see Status
      */
-    public boolean deleteExecutedTask(Integer id) {
-        return false;
+    public void delete(Integer id) {
+        Script script = findById(id);
+        Status status = script.getStatus();
+
+        if (status == Status.COMPLETED || status == Status.INTERRUPTED || status == Status.FAILED) {
+            scripts.remove(id, script);
+        } else {
+            throw new IllegalStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
+        }
     }
 }

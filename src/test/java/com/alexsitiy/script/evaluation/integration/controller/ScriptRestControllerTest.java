@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class JSScriptRestControllerTest extends IntegrationTestBase {
+class ScriptRestControllerTest extends IntegrationTestBase {
 
     private static final String BASE_URI = "/js/scripts";
     private static final Integer NEXT_SCRIPT_ID = 6;
@@ -33,7 +33,7 @@ class JSScriptRestControllerTest extends IntegrationTestBase {
     private final ScriptExecutionService jsService;
 
     @Autowired
-    JSScriptRestControllerTest(MockMvc mockMvc, ScriptExecutionService jsService) {
+    ScriptRestControllerTest(MockMvc mockMvc, ScriptExecutionService jsService) {
         this.mockMvc = mockMvc;
         this.jsService = jsService;
     }

@@ -9,11 +9,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class Script implements Runnable {
 
@@ -27,7 +31,6 @@ public class Script implements Runnable {
     private final String body;
     private final ByteArrayOutputStream result;
     private final ByteArrayOutputStream errors;
-    private volatile String stackTrace;
 
     private final Context context;
 
@@ -35,6 +38,7 @@ public class Script implements Runnable {
         this.id = idGenerator.incrementAndGet();
         this.status = Status.IN_QUEUE;
         this.body = body;
+        // TODO: 28.08.2023 Use one instance for result and errors
         this.result = new ByteArrayOutputStream();
         this.errors = new ByteArrayOutputStream();
         this.context = Context.newBuilder()
@@ -79,11 +83,12 @@ public class Script implements Runnable {
             if (e.isGuestException()) {
                 if (e.isInterrupted()) {
                     this.status = Status.INTERRUPTED;
-                    this.stackTrace = e.getMessage();
+                    this.errors.writeBytes(e.getMessage().getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} was interrupted", this);
                 } else {
+                    // TODO: 28.08.2023 Convert stackTrace to OutputStream
                     this.status = Status.FAILED;
-                    this.stackTrace = e.getMessage();
+                    this.errors.writeBytes(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("\n")).getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} is failed", this);
                 }
             } else {
@@ -141,13 +146,6 @@ public class Script implements Runnable {
         return errors;
     }
 
-    public String getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(String stackTrace) {
-        this.stackTrace = stackTrace;
-    }
 
     @Override
     public String toString() {
@@ -166,15 +164,14 @@ public class Script implements Runnable {
         Script script = (Script) o;
 
         if (executionTime != script.executionTime) return false;
-        if (id != null ? !id.equals(script.id) : script.id != null) return false;
+        if (!Objects.equals(id, script.id)) return false;
         if (status != script.status) return false;
-        if (scheduledTime != null ? !scheduledTime.equals(script.scheduledTime) : script.scheduledTime != null)
+        if (!Objects.equals(scheduledTime, script.scheduledTime))
             return false;
-        if (body != null ? !body.equals(script.body) : script.body != null) return false;
-        if (result != null ? !result.equals(script.result) : script.result != null) return false;
-        if (errors != null ? !errors.equals(script.errors) : script.errors != null) return false;
-        if (stackTrace != null ? !stackTrace.equals(script.stackTrace) : script.stackTrace != null) return false;
-        return context != null ? context.equals(script.context) : script.context == null;
+        if (!Objects.equals(body, script.body)) return false;
+        if (!Objects.equals(result, script.result)) return false;
+        if (!Objects.equals(errors, script.errors)) return false;
+        return Objects.equals(context, script.context);
     }
 
     @Override
@@ -186,7 +183,6 @@ public class Script implements Runnable {
         result1 = 31 * result1 + (body != null ? body.hashCode() : 0);
         result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
         result1 = 31 * result1 + (errors != null ? errors.hashCode() : 0);
-        result1 = 31 * result1 + (stackTrace != null ? stackTrace.hashCode() : 0);
         result1 = 31 * result1 + (context != null ? context.hashCode() : 0);
         return result1;
     }

@@ -1,7 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
-import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.JSScriptFilter;
 import com.alexsitiy.script.evaluation.model.JSScriptSort;
@@ -42,22 +41,22 @@ import org.springframework.web.bind.annotation.*;
 // */
 @RestController
 @RequestMapping("/js/scripts")
-public class JSScriptRestController {
+public class ScriptRestController {
 
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
     private final ScriptReadMapper scriptReadMapper;
 
     @Autowired
-    public JSScriptRestController(ScriptExecutionService scriptExecutionService,
-                                  ScriptService scriptService,
-                                  ScriptReadMapper scriptReadMapper) {
+    public ScriptRestController(ScriptExecutionService scriptExecutionService,
+                                ScriptService scriptService,
+                                ScriptReadMapper scriptReadMapper) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
         this.scriptReadMapper = scriptReadMapper;
     }
 
-//    /**
+    //    /**
 //     * Finds all scripts which are storing in {@link com.alexsitiy.script.evaluation.repository.JSScriptRepository}
 //     * according to passed {@link JSScriptFilter} and {@link JSScriptSort} objects.
 //     * <br/>
@@ -104,7 +103,7 @@ public class JSScriptRestController {
         return null;
     }
 
-//    /**
+    //    /**
 //     * Finds {@linkplain com.alexsitiy.script.evaluation.model.JSScript} by its id. And returns
 //     * its representation, also adds HATEOAS links to it.
 //     *
@@ -135,20 +134,22 @@ public class JSScriptRestController {
     }
 
     /**
-//     * Receives JavaScript as a String to evaluate it. After submitting the script
-//     * to ThreadPool returns its representation that also includes HATEOAS links.
-//     *
-//     * @param jsCode JavaScript code that is evaluated.
-//     * @return {@link ResponseEntity} that comprises afaf.
-//     * It also returns 201(CREATED) status code.
-//     * @see ScriptExecutionService
-//     * @see com.alexsitiy.script.evaluation.thread.ScriptThreadPool
-//     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-//     * @see HttpStatus
-//     */
+     * //     * Receives JavaScript as a String to evaluate it. After submitting the script
+     * //     * to ThreadPool returns its representation that also includes HATEOAS links.
+     * //     *
+     * //     * @param jsCode JavaScript code that is evaluated.
+     * //     * @return {@link ResponseEntity} that comprises afaf.
+     * //     * It also returns 201(CREATED) status code.
+     * //     * @see ScriptExecutionService
+     * //     * @see com.alexsitiy.script.evaluation.thread.ScriptThreadPool
+     * //     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
+     * //     * @see HttpStatus
+     * //
+     */
     @PostMapping("/evaluate")
     @Operation(summary = "Evaluates passed script")
     public ResponseEntity<ScriptReadDto> evaluate(@RequestBody String jsCode) {
+        // TODO: 28.08.2023 Validate script before adding to pool
         // TODO: 27.08.2023 Status 202 and return object with links
         Script script = scriptExecutionService.evaluate(jsCode);
         ScriptReadDto dto = scriptReadMapper.map(script);
@@ -158,7 +159,7 @@ public class JSScriptRestController {
                 .body(dto);
     }
 
-//    /**
+    //    /**
 //     * Terminates the script that is currently running by its id, returns 404(NOT_FOUND) status code
 //     * if such a script was not found.
 //     *
@@ -176,7 +177,7 @@ public class JSScriptRestController {
         return ResponseEntity.noContent().build();
     }
 
-//    /**
+    //    /**
 //     * Deletes the script that is stored in {@link com.alexsitiy.script.evaluation.repository.JSScriptRepository}
 //     * by its id. Returns 404(NOT_FOUND) status code if such a script was not found.
 //     *
@@ -190,15 +191,8 @@ public class JSScriptRestController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletes a COMPLETED,INTERRUPTED,FAILED script by its id")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
-        return null;
-//        return jsService.deleteExecutedTask(id) ?
-//                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
-    }
-
-
-    @ExceptionHandler(NoSuchScriptException.class)
-    public ResponseEntity<?> handleNoSuchScriptException(NoSuchScriptException e){
-        return ResponseEntity.notFound().build();
+        scriptService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

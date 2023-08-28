@@ -11,8 +11,7 @@ public record ScriptReadDto(
         Instant scheduledTime,
         String body,
         String result,
-        String error,
-        String stackTrace
+        String error
 ) {
 
 }

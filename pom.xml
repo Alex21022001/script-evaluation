@@ -31,27 +31,6 @@
             <version>2.1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.zalando</groupId>
-            <artifactId>problem-spring-web-starter</artifactId>
-            <version>0.29.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>3.10.8</version>
-            <classifier>jakarta</classifier>
-        </dependency>
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.graalvm.js</groupId>

@@ -15,7 +15,6 @@ public class ScriptReadMapper implements Mapper<Script, ScriptReadDto> {
                 object.getScheduledTime(),
                 object.getBody(),
                 object.getResult().toString(),
-                object.getErrors().toString(),
-                object.getStackTrace());
+                object.getErrors().toString());
     }
 }

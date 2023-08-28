@@ -1,6 +1,5 @@
 package com.alexsitiy.script.evaluation.unit.repository;
 
-import com.alexsitiy.script.evaluation.model.JSScript;
 import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
 import org.junit.jupiter.api.Assertions;

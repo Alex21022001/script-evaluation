@@ -50,7 +50,7 @@ public class Script implements Runnable {
                 .build();
     }
 
-    public void stop(){
+    public void stop() {
         try {
             this.context.interrupt(Duration.of(2, ChronoUnit.SECONDS));
         } catch (TimeoutException e) {
@@ -83,9 +83,8 @@ public class Script implements Runnable {
                     log.debug("Script {} was interrupted", this);
                 } else {
                     this.status = Status.FAILED;
-                    // TODO: 27.08.2023 Set stackTrace
-                    e.getPolyglotStackTrace().forEach(stackFrame -> System.out.println(stackFrame));
-                    log.debug("Script {} failed", this);
+                    this.stackTrace = e.getMessage();
+                    log.debug("Script {} is failed", this);
                 }
             } else {
                 log.error("Internal Error: {}", e.getMessage());

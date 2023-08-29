@@ -22,6 +22,7 @@ public class ScriptService {
     private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 
     private final Map<Integer, Script> scripts = new ConcurrentHashMap<>();
+    private final Map<List<String>, Comparator<Script>> sortCache = new ConcurrentHashMap<>();
 
 
     //        /**
@@ -34,12 +35,12 @@ public class ScriptService {
 //     * @see JSScriptReadMapper
 //     */
     public List<Script> findAll(Set<Status> statuses, List<String> sorts) {
-        // TODO: 28.08.2023 Cache Sort + make filter better.
         return scripts.values().stream()
                 .filter(filteredBy(statuses))
                 .sorted(sortedBy(sorts))
                 .toList();
     }
+
 
     //
 //    /**
@@ -88,12 +89,18 @@ public class ScriptService {
         return script -> filter.contains(script.getStatus());
     }
 
-    private Comparator<? super Script> sortedBy(List<String> sort) {
+    private Comparator<Script> sortedBy(List<String> sort) {
         if (sort == null || sort.isEmpty()) {
             return (o1, o2) -> 0;
         }
 
-        Comparator<Script> comparator = null;
+        Comparator<Script> comparator = sortCache.get(sort);
+        if (comparator != null) {
+            log.debug("sort was obtained from cache");
+            return comparator;
+        }
+
+        log.debug("Sorting is invoked");
 
         for (String value : sort) {
             comparator = switch (value) {
@@ -105,11 +112,19 @@ public class ScriptService {
                         (comparator == null) ? Comparator.comparingLong(Script::getExecutionTime) : comparator.thenComparingLong(Script::getExecutionTime);
                 case "TIME" ->
                         (comparator == null) ? Comparator.comparing(Script::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getExecutionTime, Comparator.reverseOrder());
+                case "scheduled" ->
+                        (comparator == null) ? Comparator.comparing(Script::getScheduledTime) : comparator.thenComparing(Script::getScheduledTime);
+                case "SCHEDULED" ->
+                        (comparator == null) ? Comparator.comparing(Script::getScheduledTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getScheduledTime, Comparator.reverseOrder());
                 default -> null;
             };
         }
 
-        return comparator == null ?
-                (o1, o2) -> 0 : comparator;
+        if (comparator == null) {
+            return (o1, o2) -> 0;
+        }
+
+        sortCache.put(sort, comparator);
+        return comparator;
     }
 }

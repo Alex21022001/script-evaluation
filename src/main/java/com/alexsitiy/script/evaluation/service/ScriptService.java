@@ -17,7 +17,7 @@ import java.util.function.Predicate;
 // * such as {@link JSScriptFullReadDto} and {@link JSScriptReadDto} by using {@link JSScriptFullReadMapper} and {@link JSScriptReadMapper}.
 // */
 @Service
-public class ScriptService {
+public final class ScriptService {
 
     private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 

@@ -2,3 +2,8 @@ app:
   thread-pool:
     thread-capacity: 2
     queue-capacity: 5
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,application/vnd.hal+json
+    min-response-size: 1MB

@@ -128,7 +128,6 @@ public class ScriptRestController {
                     .status(304)
                     .build();
         }
-
         ScriptReadDto dto = scriptReadMapper.map(script);
 
         if (Status.isFinished(script.getStatus())) {

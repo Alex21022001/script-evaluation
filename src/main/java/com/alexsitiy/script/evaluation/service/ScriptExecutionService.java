@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
  * @see org.springframework.cache.CacheManager
  */
 @Service
-public class ScriptExecutionService {
+public final class ScriptExecutionService {
 
     private final ScriptService scriptService;
     private final TaskExecutor taskExecutor;

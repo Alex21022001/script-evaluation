@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Script implements Runnable {
+public final class Script implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(Script.class);
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
@@ -28,7 +29,7 @@ public class Script implements Runnable {
     private volatile long executionTime;
     private volatile Instant scheduledTime;
     private final String body;
-    private final ByteArrayOutputStream result;
+    private final CyclicOutputStream result;
     private final ByteArrayOutputStream errors;
     private volatile long lastModified;
 
@@ -40,7 +41,7 @@ public class Script implements Runnable {
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
         // TODO: 28.08.2023 Use one instance for result and errors
-        this.result = new ByteArrayOutputStream();
+        this.result = new CyclicOutputStream(1024);
         this.errors = new ByteArrayOutputStream();
         this.context = createContext();
     }
@@ -152,7 +153,7 @@ public class Script implements Runnable {
         return body;
     }
 
-    public ByteArrayOutputStream getResult() {
+    public OutputStream getResult() {
         return result;
     }
 

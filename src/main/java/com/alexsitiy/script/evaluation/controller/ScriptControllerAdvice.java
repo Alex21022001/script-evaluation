@@ -18,6 +18,8 @@ public class ScriptControllerAdvice {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
         problemDetail.setTitle("Script Not Found");
         problemDetail.setProperty("scriptId", e.getId());
+        // I'm not sure about Type. Should I use it or not
+//        problemDetail.setType(URI.create("http://localhost:8080/errors/script-not-found"));
 
         return problemDetail;
     }

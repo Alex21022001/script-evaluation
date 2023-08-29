@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 ///**
 // * This class is used for CRUD operations over {@link com.alexsitiy.script.evaluation.model.JSScript},
@@ -23,7 +24,7 @@ public class ScriptService {
     private final Map<Integer, Script> scripts = new ConcurrentHashMap<>();
 
 
-    //    /**
+    //        /**
 //     * Look for all {@link com.alexsitiy.script.evaluation.model.JSScript} according to passing
 //     * {@link JSScriptFilter} and {@link JSScriptSort} and return their representations in the {@link List}.
 //     *
@@ -32,10 +33,15 @@ public class ScriptService {
 //     * @return {@link List<JSScriptFullReadDto>} - the list of the representations of the obtained scripts.
 //     * @see JSScriptReadMapper
 //     */
-//    public List<?> findAll(JSScriptFilter filter, JSScriptSort sort) {
-//        return null;
-//    }
-//
+    public List<Script> findAll(Set<Status> statuses, List<String> sorts) {
+        // TODO: 28.08.2023 Cache Sort + make filter better.
+        return scripts.values().stream()
+                .filter(filteredBy(statuses))
+                .sorted(sortedBy(sorts))
+                .toList();
+    }
+
+    //
 //    /**
 //     * Look for a specific script by its id and return its representation {@link JSScriptFullReadDto}.
 //     *
@@ -73,5 +79,37 @@ public class ScriptService {
         } else {
             throw new IllegalStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
         }
+    }
+
+    private Predicate<? super Script> filteredBy(Set<Status> filter) {
+        if (filter == null || filter.isEmpty())
+            return script -> true;
+
+        return script -> filter.contains(script.getStatus());
+    }
+
+    private Comparator<? super Script> sortedBy(List<String> sort) {
+        if (sort == null || sort.isEmpty()) {
+            return (o1, o2) -> 0;
+        }
+
+        Comparator<Script> comparator = null;
+
+        for (String value : sort) {
+            comparator = switch (value) {
+                case "id" ->
+                        (comparator == null) ? Comparator.comparingInt(Script::getId) : comparator.thenComparingInt(Script::getId);
+                case "ID" ->
+                        (comparator == null) ? Comparator.comparing(Script::getId, Comparator.reverseOrder()) : comparator.thenComparing(Script::getId, Comparator.reverseOrder());
+                case "time" ->
+                        (comparator == null) ? Comparator.comparingLong(Script::getExecutionTime) : comparator.thenComparingLong(Script::getExecutionTime);
+                case "TIME" ->
+                        (comparator == null) ? Comparator.comparing(Script::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getExecutionTime, Comparator.reverseOrder());
+                default -> null;
+            };
+        }
+
+        return comparator == null ?
+                (o1, o2) -> 0 : comparator;
     }
 }

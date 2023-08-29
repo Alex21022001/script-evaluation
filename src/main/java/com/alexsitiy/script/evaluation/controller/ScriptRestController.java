@@ -1,18 +1,22 @@
 package com.alexsitiy.script.evaluation.controller;
 
+import com.alexsitiy.script.evaluation.dto.ScriptInfo;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
+import com.alexsitiy.script.evaluation.mapper.ScriptInfoMapper;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
-import com.alexsitiy.script.evaluation.model.JSScriptFilter;
-import com.alexsitiy.script.evaluation.model.JSScriptSort;
 import com.alexsitiy.script.evaluation.model.Script;
+import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.ScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 ///**
 // * The main Rest controller that is responsible for obtaining user's
@@ -46,14 +50,16 @@ public class ScriptRestController {
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
     private final ScriptReadMapper scriptReadMapper;
+    private final ScriptInfoMapper scriptInfoMapper;
 
     @Autowired
     public ScriptRestController(ScriptExecutionService scriptExecutionService,
                                 ScriptService scriptService,
-                                ScriptReadMapper scriptReadMapper) {
+                                ScriptReadMapper scriptReadMapper, ScriptInfoMapper scriptInfoMapper) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
         this.scriptReadMapper = scriptReadMapper;
+        this.scriptInfoMapper = scriptInfoMapper;
     }
 
     //    /**
@@ -90,17 +96,13 @@ public class ScriptRestController {
                     @Parameter(name = "filter", allowEmptyValue = true, example = "IN_QUEUE,COMPLETED,INTERRUPTED"),
                     @Parameter(name = "sort", allowEmptyValue = true, example = "TIME,id")
             })
-    public ResponseEntity<CollectionModel<?>> findAll(JSScriptFilter filter, JSScriptSort sort) {
+    public ResponseEntity<List<ScriptInfo>> findAll(@RequestParam(value = "statuses",required = false) Set<Status> statuses,
+                                                @RequestParam(value = "sorts",required = false) List<String> sorts) {
+        List<ScriptInfo> scriptInfos = scriptService.findAll(statuses, sorts)
+                .stream().map(scriptInfoMapper::map)
+                .toList();
 
-//        List<JSScriptReadDto> scripts = jsService.findAll(filter, sort);
-//        scripts.forEach(jsScriptDto -> jsScriptDto
-//                .add(linkTo(methodOn(JSScriptRestController.class).findById(jsScriptDto.getId())).withSelfRel()));
-//
-//        CollectionModel<JSScriptReadDto> collectionModel = CollectionModel.of(scripts,
-//                linkTo(methodOn(JSScriptRestController.class).findAll(filter, sort)).withSelfRel());
-
-
-        return null;
+        return ResponseEntity.ok(scriptInfos);
     }
 
     //    /**

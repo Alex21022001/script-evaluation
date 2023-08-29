@@ -30,13 +30,9 @@ public class Script implements Runnable {
     private final String body;
     private final ByteArrayOutputStream result;
     private final ByteArrayOutputStream errors;
+    private volatile long lastModified;
 
     private CompletableFuture<Void> task;
-
-    public void setTask(CompletableFuture<Void> task) {
-        this.task = task;
-    }
-
     private final Context context;
 
     public Script(String body) {
@@ -70,6 +66,7 @@ public class Script implements Runnable {
             } finally {
                 if (this.status.get() == Status.IN_QUEUE) {
                     this.status.set(Status.INTERRUPTED);
+                    this.lastModified = Instant.now().toEpochMilli();
                     this.errors.writeBytes("Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
                 }
                 log.debug("Script {} was forcibly closed", this);
@@ -91,9 +88,11 @@ public class Script implements Runnable {
             this.executionTime = System.currentTimeMillis() - start;
 
             this.status.set(Status.COMPLETED);
+            this.lastModified = Instant.now().toEpochMilli();
             log.debug("Script {} is completed successfully", this);
         } catch (PolyglotException e) {
             this.executionTime = System.currentTimeMillis() - start;
+            this.lastModified = Instant.now().toEpochMilli();
 
             if (e.isGuestException()) {
                 if (e.isInterrupted()) {
@@ -129,6 +128,10 @@ public class Script implements Runnable {
         this.scheduledTime = scheduledTime;
     }
 
+    public void setTask(CompletableFuture<Void> task) {
+        this.task = task;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -157,6 +160,9 @@ public class Script implements Runnable {
         return errors;
     }
 
+    public long getLastModified() {
+        return lastModified;
+    }
 
     @Override
     public String toString() {

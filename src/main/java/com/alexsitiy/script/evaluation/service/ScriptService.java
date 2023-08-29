@@ -96,11 +96,8 @@ public class ScriptService {
 
         Comparator<Script> comparator = sortCache.get(sort);
         if (comparator != null) {
-            log.debug("sort was obtained from cache");
             return comparator;
         }
-
-        log.debug("Sorting is invoked");
 
         for (String value : sort) {
             comparator = switch (value) {

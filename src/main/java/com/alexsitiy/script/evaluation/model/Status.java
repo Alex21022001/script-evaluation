@@ -10,5 +10,12 @@ public enum Status {
     EXECUTING,
     COMPLETED,
     FAILED,
-    INTERRUPTED
+    INTERRUPTED;
+
+    public static boolean isFinished(Status status) {
+        if (status == INTERRUPTED || status == FAILED || status == COMPLETED)
+            return true;
+
+        return false;
+    }
 }

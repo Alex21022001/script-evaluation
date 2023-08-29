@@ -11,10 +11,11 @@ import com.alexsitiy.script.evaluation.service.ScriptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,8 +97,8 @@ public class ScriptRestController {
                     @Parameter(name = "filter", allowEmptyValue = true, example = "IN_QUEUE,COMPLETED,INTERRUPTED"),
                     @Parameter(name = "sort", allowEmptyValue = true, example = "TIME,id")
             })
-    public ResponseEntity<List<ScriptInfo>> findAll(@RequestParam(value = "statuses",required = false) Set<Status> statuses,
-                                                @RequestParam(value = "sorts",required = false) List<String> sorts) {
+    public ResponseEntity<List<ScriptInfo>> findAll(@RequestParam(value = "statuses", required = false) Set<Status> statuses,
+                                                    @RequestParam(value = "sorts", required = false) List<String> sorts) {
         List<ScriptInfo> scriptInfos = scriptService.findAll(statuses, sorts)
                 .stream().map(scriptInfoMapper::map)
                 .toList();
@@ -119,20 +120,28 @@ public class ScriptRestController {
 //     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtains specif script by its id")
-    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id) {
+    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id, WebRequest request) {
         Script script = scriptService.findById(id);
+
+        if (request.checkNotModified(script.getLastModified())) {
+            return ResponseEntity
+                    .status(304)
+                    .build();
+        }
+
         ScriptReadDto dto = scriptReadMapper.map(script);
+
+        if (Status.isFinished(script.getStatus())) {
+            return ResponseEntity
+                    .ok()
+                    .cacheControl(CacheControl
+                            .noCache()
+                            .cachePrivate())
+                    .lastModified(script.getLastModified())
+                    .body(dto);
+        }
+
         return ResponseEntity.ok(dto);
-//        return jsService.findById(id)
-//                .map(jsScriptDto -> {
-//                    jsScriptDto
-//                            .add(linkTo(methodOn(JSScriptRestController.class).findById(id)).withSelfRel())
-//                            .add(linkTo(methodOn(JSScriptRestController.class).findAll(null, null)).withRel("allScripts").withType("GET"))
-//                            .add(linkTo(methodOn(JSScriptRestController.class).stop(jsScriptDto.getId())).withRel("stop").withType("POST").withDeprecation("Stop an executing Script"))
-//                            .add(linkTo(methodOn(JSScriptRestController.class).delete(jsScriptDto.getId())).withRel("delete").withType("DELETE").withDeprecation("Delete already executed Script"));
-//                    return ResponseEntity.ok(jsScriptDto);
-//                })
-//                .orElseGet(ResponseEntity.notFound()::build);
     }
 
     /**

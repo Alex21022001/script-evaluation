@@ -2,7 +2,6 @@ package com.alexsitiy.script.evaluation.service;
 
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.model.Script;
-import com.alexsitiy.script.evaluation.repository.JSScriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.task.TaskExecutor;

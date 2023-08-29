@@ -49,6 +49,7 @@ public final class ScriptExecutionService {
 
     public Script evaluate(String jsCode) {
         Script script = new Script(jsCode);
+
         try {
             CompletableFuture<Void> task = CompletableFuture
                     .runAsync(script, taskExecutor);

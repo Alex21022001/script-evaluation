@@ -8,11 +8,14 @@ import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.ScriptService;
+import com.alexsitiy.script.evaluation.validation.CheckScript;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
@@ -46,6 +49,7 @@ import java.util.Set;
 // */
 @RestController
 @RequestMapping("/js/scripts")
+@Validated
 public class ScriptRestController {
 
     private final ScriptExecutionService scriptExecutionService;
@@ -158,8 +162,9 @@ public class ScriptRestController {
      */
     @PostMapping("/evaluate")
     @Operation(summary = "Evaluates passed script")
-    public ResponseEntity<ScriptReadDto> evaluate(@RequestBody String jsCode) {
-        // TODO: 28.08.2023 Validate script before adding to pool
+    public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
+                                                  @CheckScript
+                                                  @RequestBody String jsCode) {
         // TODO: 27.08.2023 Status 202 and return object with links
         Script script = scriptExecutionService.evaluate(jsCode);
         ScriptReadDto dto = scriptReadMapper.map(script);

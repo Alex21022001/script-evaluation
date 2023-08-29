@@ -1,9 +1,12 @@
 package com.alexsitiy.script.evaluation.controller;
 
+import com.alexsitiy.script.evaluation.dto.ValidationErrorResponse;
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -33,5 +36,12 @@ public class ScriptControllerAdvice {
         problemDetail.setTitle("To many request, try latter");
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(ConstraintViolationException e){
+       return ResponseEntity
+               .badRequest()
+               .body(ValidationErrorResponse.of(e.getConstraintViolations()));
     }
 }

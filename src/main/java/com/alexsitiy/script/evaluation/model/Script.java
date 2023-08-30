@@ -1,13 +1,13 @@
 package com.alexsitiy.script.evaluation.model;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
 import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.SandboxPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -27,33 +27,30 @@ public final class Script implements Runnable {
     private final Integer id;
     private final AtomicReference<Status> status;
     private volatile long executionTime;
+    private volatile long lastModified = -1;
     private volatile Instant scheduledTime;
     private final String body;
-    private final CyclicOutputStream result;
-    private final ByteArrayOutputStream errors;
-    private volatile long lastModified;
+    private final CyclicByteArrayOutputStream result;
 
     private CompletableFuture<Void> task;
-    private final Context context;
+    private Context context;
 
     public Script(String body) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
-        // TODO: 28.08.2023 Use one instance for result and errors
-        this.result = new CyclicOutputStream(1024);
-        this.errors = new ByteArrayOutputStream();
+        this.result = new CyclicByteArrayOutputStream(1024);
         this.context = createContext();
     }
 
     private Context createContext() {
         return Context.newBuilder("js")
-                .allowAllAccess(true)
-                .engine(Engine.newBuilder()
+                .engine(Engine.newBuilder("js")
                         .option("engine.WarnInterpreterOnly", "false")
+                        .sandbox(SandboxPolicy.CONSTRAINED)
+                        .out(result)
+                        .err(result)
                         .build())
-                .err(this.errors)
-                .out(this.result)
                 .build();
     }
 
@@ -68,7 +65,7 @@ public final class Script implements Runnable {
                 if (this.status.get() == Status.IN_QUEUE) {
                     this.status.set(Status.INTERRUPTED);
                     this.lastModified = Instant.now().toEpochMilli();
-                    this.errors.writeBytes("Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
+                    this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
                 }
                 log.debug("Script {} was forcibly closed", this);
             }
@@ -98,35 +95,21 @@ public final class Script implements Runnable {
             if (e.isGuestException()) {
                 if (e.isInterrupted()) {
                     this.status.set(Status.INTERRUPTED);
-                    this.errors.writeBytes(e.getMessage().getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} was interrupted", this);
                 } else {
-                    // TODO: 28.08.2023 Convert stackTrace to OutputStream
                     this.status.set(Status.FAILED);
-                    this.errors.writeBytes(e.getMessage().getBytes(StandardCharsets.UTF_8));
                     log.debug("Script {} is failed", this);
                 }
-            } else {
-                log.error("Internal Error: {}", e.getMessage());
             }
+            this.result.write(("Error: "+ExceptionUtils.getStackTrace(e)).getBytes(StandardCharsets.UTF_8));
         } finally {
             this.context.close();
-
-            try {
-                this.result.close();
-                this.errors.close();
-            } catch (IOException e) {
-                log.error("Failed to close OutputStream");
-            }
+            this.context = null;
         }
     }
 
     public Instant getScheduledTime() {
         return scheduledTime;
-    }
-
-    public void setScheduledTime(Instant scheduledTime) {
-        this.scheduledTime = scheduledTime;
     }
 
     public void setTask(CompletableFuture<Void> task) {
@@ -145,10 +128,6 @@ public final class Script implements Runnable {
         return executionTime;
     }
 
-    public void setExecutionTime(long executionTime) {
-        this.executionTime = executionTime;
-    }
-
     public String getBody() {
         return body;
     }
@@ -157,9 +136,6 @@ public final class Script implements Runnable {
         return result;
     }
 
-    public ByteArrayOutputStream getErrors() {
-        return errors;
-    }
 
     public long getLastModified() {
         return lastModified;
@@ -188,7 +164,6 @@ public final class Script implements Runnable {
             return false;
         if (!Objects.equals(body, script.body)) return false;
         if (!Objects.equals(result, script.result)) return false;
-        if (!Objects.equals(errors, script.errors)) return false;
         return Objects.equals(context, script.context);
     }
 
@@ -200,7 +175,6 @@ public final class Script implements Runnable {
         result1 = 31 * result1 + (scheduledTime != null ? scheduledTime.hashCode() : 0);
         result1 = 31 * result1 + (body != null ? body.hashCode() : 0);
         result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
-        result1 = 31 * result1 + (errors != null ? errors.hashCode() : 0);
         result1 = 31 * result1 + (context != null ? context.hashCode() : 0);
         return result1;
     }

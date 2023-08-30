@@ -10,8 +10,7 @@ public record ScriptReadDto(
         Long executionTime,
         Instant scheduledTime,
         String body,
-        String result,
-        String error
+        String result
 ) {
 
 }

@@ -48,7 +48,7 @@ import java.util.Set;
 // * @see ResponseEntity
 // */
 @RestController
-@RequestMapping("/js/scripts")
+@RequestMapping("/scripts")
 @Validated
 public class ScriptRestController {
 
@@ -160,7 +160,7 @@ public class ScriptRestController {
      * //     * @see HttpStatus
      * //
      */
-    @PostMapping("/evaluate")
+    @PostMapping
     @Operation(summary = "Evaluates passed script")
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
                                                   @CheckScript
@@ -185,7 +185,7 @@ public class ScriptRestController {
 //     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 //     * @see HttpStatus
 //     */
-    @PostMapping("/stop/{id}")
+    @PostMapping("/{id}")
     @Operation(summary = "Terminates a specific script by its id. Returns 404(NOT_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 

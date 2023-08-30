@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * It adds additional {@link HandlerMethodArgumentResolver} as {}.
  */
 @Configuration
+@EnableHypermediaSupport(type = {EnableHypermediaSupport.HypermediaType.HAL})
 public class WebConfig implements WebMvcConfigurer {
     @Bean
     public TaskExecutor threadPoolTaskExecutor(@Value("${app.thread-pool.thread-capacity}") Integer poolSize,

@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.EntityLinks;
+import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +51,7 @@ import java.util.Set;
 // */
 @RestController
 @RequestMapping("/scripts")
+@ExposesResourceFor(ScriptReadDto.class)
 @Validated
 public class ScriptRestController {
 
@@ -57,14 +60,17 @@ public class ScriptRestController {
     private final ScriptReadMapper scriptReadMapper;
     private final ScriptInfoMapper scriptInfoMapper;
 
+    private final EntityLinks entityLinks;
+
     @Autowired
     public ScriptRestController(ScriptExecutionService scriptExecutionService,
                                 ScriptService scriptService,
-                                ScriptReadMapper scriptReadMapper, ScriptInfoMapper scriptInfoMapper) {
+                                ScriptReadMapper scriptReadMapper, ScriptInfoMapper scriptInfoMapper, EntityLinks entityLinks) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
         this.scriptReadMapper = scriptReadMapper;
         this.scriptInfoMapper = scriptInfoMapper;
+        this.entityLinks = entityLinks;
     }
 
     //    /**
@@ -132,7 +138,7 @@ public class ScriptRestController {
                     .status(304)
                     .build();
         }
-        ScriptReadDto dto = scriptReadMapper.map(script);
+        ScriptReadDto dto = scriptReadMapper.toModel(script);
 
         if (Status.isFinished(script.getStatus())) {
             return ResponseEntity
@@ -167,7 +173,7 @@ public class ScriptRestController {
                                                   @RequestBody String jsCode) {
         // TODO: 27.08.2023 Status 202 and return object with links
         Script script = scriptExecutionService.evaluate(jsCode);
-        ScriptReadDto dto = scriptReadMapper.map(script);
+        ScriptReadDto dto = scriptReadMapper.toModel(script);
 
         return ResponseEntity
                 .status(202)

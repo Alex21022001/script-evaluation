@@ -1,8 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
-import com.alexsitiy.script.evaluation.dto.ScriptInfo;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
-import com.alexsitiy.script.evaluation.mapper.ScriptInfoMapper;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
@@ -13,7 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.server.EntityLinks;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.NonComposite;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -57,20 +56,17 @@ public class ScriptRestController {
 
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
-    private final ScriptReadMapper scriptReadMapper;
-    private final ScriptInfoMapper scriptInfoMapper;
 
-    private final EntityLinks entityLinks;
+    private final ScriptReadMapper scriptReadMapper;
+
 
     @Autowired
     public ScriptRestController(ScriptExecutionService scriptExecutionService,
                                 ScriptService scriptService,
-                                ScriptReadMapper scriptReadMapper, ScriptInfoMapper scriptInfoMapper, EntityLinks entityLinks) {
+                                ScriptReadMapper scriptReadMapper) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
         this.scriptReadMapper = scriptReadMapper;
-        this.scriptInfoMapper = scriptInfoMapper;
-        this.entityLinks = entityLinks;
     }
 
     //    /**
@@ -107,13 +103,10 @@ public class ScriptRestController {
                     @Parameter(name = "filter", allowEmptyValue = true, example = "IN_QUEUE,COMPLETED,INTERRUPTED"),
                     @Parameter(name = "sort", allowEmptyValue = true, example = "TIME,id")
             })
-    public ResponseEntity<List<ScriptInfo>> findAll(@RequestParam(value = "statuses", required = false) Set<Status> statuses,
-                                                    @RequestParam(value = "sorts", required = false) List<String> sorts) {
-        List<ScriptInfo> scriptInfos = scriptService.findAll(statuses, sorts)
-                .stream().map(scriptInfoMapper::map)
-                .toList();
+    public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite @RequestParam(value = "statuses", required = false) Set<Status> statuses,
+                                                                  @NonComposite @RequestParam(value = "sorts", required = false) List<String> sorts) {
 
-        return ResponseEntity.ok(scriptInfos);
+        return ResponseEntity.ok(scriptReadMapper.toCollectionModel(scriptService.findAll(statuses, sorts)));
     }
 
     //    /**
@@ -138,7 +131,9 @@ public class ScriptRestController {
                     .status(304)
                     .build();
         }
-        ScriptReadDto dto = scriptReadMapper.toModel(script);
+
+        ScriptReadDto dto = scriptReadMapper.toModelWithAllLinks(script);
+
 
         if (Status.isFinished(script.getStatus())) {
             return ResponseEntity
@@ -151,6 +146,16 @@ public class ScriptRestController {
         }
 
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping(value = "/{id}/body", produces = {"text/plain"})
+    public ResponseEntity<String> getBody(@PathVariable Integer id) {
+        return ResponseEntity.ok(scriptService.getBodyById(id));
+    }
+
+    @GetMapping(value = "/{id}/result", produces = {"text/plain"})
+    public ResponseEntity<String> getResult(@PathVariable Integer id) {
+        return ResponseEntity.ok(scriptService.getResultById(id));
     }
 
     /**
@@ -171,13 +176,12 @@ public class ScriptRestController {
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
                                                   @CheckScript
                                                   @RequestBody String jsCode) {
-        // TODO: 27.08.2023 Status 202 and return object with links
+
         Script script = scriptExecutionService.evaluate(jsCode);
-        ScriptReadDto dto = scriptReadMapper.toModel(script);
 
         return ResponseEntity
                 .status(202)
-                .body(dto);
+                .body(scriptReadMapper.toModel(script));
     }
 
     //    /**

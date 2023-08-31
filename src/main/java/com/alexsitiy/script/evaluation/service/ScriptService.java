@@ -58,6 +58,16 @@ public final class ScriptService {
         return script;
     }
 
+    public String getBodyById(Integer id) {
+        Script script = findById(id);
+        return script.getBody();
+    }
+
+    public String getResultById(Integer id) {
+        Script script = findById(id);
+        return script.getResult().toString();
+    }
+
     public void save(Script script) {
         scripts.put(script.getId(), script);
     }
@@ -72,9 +82,8 @@ public final class ScriptService {
      */
     public void delete(Integer id) {
         Script script = findById(id);
-        Status status = script.getStatus();
 
-        if (status == Status.COMPLETED || status == Status.INTERRUPTED || status == Status.FAILED) {
+        if (Status.isFinished(script.getStatus())) {
             scripts.remove(id, script);
             log.debug("Script {} was deleted", script);
         } else {

@@ -12,16 +12,13 @@ public class ScriptReadDto extends RepresentationModel<ScriptReadDto> {
     private final Status status;
     private final Long executionTime;
     private final Instant scheduledTime;
-    private final String body;
-    private final String result;
 
-    public ScriptReadDto(Integer id, Status status, Long executionTime, Instant scheduledTime, String body, String result) {
+
+    public ScriptReadDto(Integer id, Status status, Long executionTime, Instant scheduledTime) {
         this.id = id;
         this.status = status;
         this.executionTime = executionTime;
         this.scheduledTime = scheduledTime;
-        this.body = body;
-        this.result = result;
     }
 
     public Integer getId() {
@@ -38,13 +35,5 @@ public class ScriptReadDto extends RepresentationModel<ScriptReadDto> {
 
     public Instant getScheduledTime() {
         return scheduledTime;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String getResult() {
-        return result;
     }
 }

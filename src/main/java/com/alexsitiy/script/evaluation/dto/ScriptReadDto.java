@@ -1,11 +1,27 @@
 package com.alexsitiy.script.evaluation.dto;
 
 import com.alexsitiy.script.evaluation.model.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 import java.time.Instant;
 
+@Schema(example = """
+        {
+            "id": 1,
+            "status": "IN_QUEUE",
+            "executionTime": 0,
+            "scheduledTime": null,
+            "_links": {
+              "self": [
+                {
+                  "href": "http://localhost:8080/scripts/1"
+                },
+              ],
+            }
+          }
+        """)
 @Relation(collectionRelation = "scripts",itemRelation = "script")
 public class ScriptReadDto extends RepresentationModel<ScriptReadDto> {
     private final Integer id;

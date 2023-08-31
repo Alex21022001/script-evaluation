@@ -1,6 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
-import com.alexsitiy.script.evaluation.doc.FindAllScriptsApiEndpoint;
+import com.alexsitiy.script.evaluation.doc.ScriptController;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
@@ -56,7 +56,7 @@ import java.util.Set;
 @ExposesResourceFor(ScriptReadDto.class)
 @Validated
 @Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
-public class ScriptRestController {
+public class ScriptRestController implements ScriptController {
 
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
@@ -105,7 +105,6 @@ public class ScriptRestController {
 //     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 //     */
     @GetMapping
-    @FindAllScriptsApiEndpoint
     public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite
                                                                   @RequestParam(value = "statuses", required = false) Set<Status> statuses,
                                                                   @NonComposite @RequestParam(value = "sorts", required = false) List<String> sorts) {
@@ -126,7 +125,6 @@ public class ScriptRestController {
 //     * @see HttpStatus
 //     */
     @GetMapping("/{id}")
-    @Operation(summary = "Obtains specif script by its id")
     public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id,
                                                   WebRequest request) {
         Script script = scriptService.findById(id);
@@ -218,8 +216,8 @@ public class ScriptRestController {
     @PostMapping("/{id}")
     @Operation(summary = "Terminates a specific script by its id. Returns 404(NOT_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
-
         scriptExecutionService.stopById(id);
+
         return ResponseEntity
                 .noContent()
                 .header(HttpHeaders.LINK,

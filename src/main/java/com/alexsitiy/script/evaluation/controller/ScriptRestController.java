@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -127,29 +128,18 @@ public class ScriptRestController {
 //     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtains specif script by its id")
-    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id) {
+    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id,
+                                                  WebRequest request) {
         Script script = scriptService.findById(id);
 
-//        if (request.checkNotModified(script.getLastModified())) {
-//            return ResponseEntity
-//                    .status(304)
-//                    .build();
-//        }
+        if (request.checkNotModified(script.getLastModified()))
+            return ResponseEntity.status(304).build();
 
-        ScriptReadDto dto = scriptReadMapper.toModelWithAllLinks(script);
-
-
-        if (Status.isFinished(script.getStatus())) {
-            return ResponseEntity
-                    .ok()
-                    .cacheControl(CacheControl
-                            .noCache()
-                            .cachePrivate())
-                    .lastModified(script.getLastModified())
-                    .body(dto);
-        }
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .lastModified(script.getLastModified())
+                .body(scriptReadMapper.toModelWithAllLinks(script));
     }
 
     @GetMapping(value = "/{id}/body", produces = {"text/plain"})

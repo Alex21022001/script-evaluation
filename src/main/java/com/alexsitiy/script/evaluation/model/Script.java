@@ -56,7 +56,7 @@ public final class Script implements Runnable {
     }
 
     public void stop() {
-        if (!task.isDone()) {
+        if (task != null && !task.isDone()) {
             task.cancel(true);
             try {
                 context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
@@ -81,6 +81,7 @@ public final class Script implements Runnable {
             log.debug("Script {} is started", this);
             this.status.set(Status.EXECUTING);
             this.scheduledTime = Instant.now();
+            this.lastModified = Instant.now().toEpochMilli();
 
             start = System.currentTimeMillis();
             context.eval("js", this.body);

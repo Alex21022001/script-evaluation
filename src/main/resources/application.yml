@@ -5,5 +5,5 @@ app:
 server:
   compression:
     enabled: true
-    mime-types: application/json,application/vnd.hal+json
-    min-response-size: 1MB
+    mime-types: application/json,text/plain
+    min-response-size: 1KB

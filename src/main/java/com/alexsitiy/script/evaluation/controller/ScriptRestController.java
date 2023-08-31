@@ -13,12 +13,13 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.NonComposite;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -57,15 +58,18 @@ public class ScriptRestController {
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
 
+    private final EntityLinks entityLinks;
     private final ScriptReadMapper scriptReadMapper;
 
 
     @Autowired
     public ScriptRestController(ScriptExecutionService scriptExecutionService,
                                 ScriptService scriptService,
+                                EntityLinks entityLinks,
                                 ScriptReadMapper scriptReadMapper) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
+        this.entityLinks = entityLinks;
         this.scriptReadMapper = scriptReadMapper;
     }
 
@@ -123,14 +127,14 @@ public class ScriptRestController {
 //     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtains specif script by its id")
-    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id, WebRequest request) {
+    public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id) {
         Script script = scriptService.findById(id);
 
-        if (request.checkNotModified(script.getLastModified())) {
-            return ResponseEntity
-                    .status(304)
-                    .build();
-        }
+//        if (request.checkNotModified(script.getLastModified())) {
+//            return ResponseEntity
+//                    .status(304)
+//                    .build();
+//        }
 
         ScriptReadDto dto = scriptReadMapper.toModelWithAllLinks(script);
 
@@ -150,12 +154,20 @@ public class ScriptRestController {
 
     @GetMapping(value = "/{id}/body", produces = {"text/plain"})
     public ResponseEntity<String> getBody(@PathVariable Integer id) {
-        return ResponseEntity.ok(scriptService.getBodyById(id));
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.LINK,
+                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .body(scriptService.getBodyById(id));
     }
 
     @GetMapping(value = "/{id}/result", produces = {"text/plain"})
     public ResponseEntity<String> getResult(@PathVariable Integer id) {
-        return ResponseEntity.ok(scriptService.getResultById(id));
+        return ResponseEntity
+                .ok()
+                .header(HttpHeaders.LINK,
+                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .body(scriptService.getResultById(id));
     }
 
     /**
@@ -200,7 +212,11 @@ public class ScriptRestController {
     public ResponseEntity<?> stop(@PathVariable Integer id) {
 
         scriptExecutionService.stopById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .header(HttpHeaders.LINK,
+                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .build();
     }
 
     //    /**
@@ -218,7 +234,11 @@ public class ScriptRestController {
     @Operation(summary = "Deletes a COMPLETED,INTERRUPTED,FAILED script by its id")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         scriptService.delete(id);
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity
+                .noContent()
+                .header(HttpHeaders.LINK, entityLinks.linkToCollectionResource(ScriptReadDto.class).withRel("allScripts").toString())
+                .build();
     }
 
 }

@@ -1,5 +1,6 @@
-package com.alexsitiy.script.evaluation.doc;
+package com.alexsitiy.script.evaluation.doc.annotation;
 
+import com.alexsitiy.script.evaluation.doc.ErrorResponseSchema;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +17,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 
 @Operation(
-        summary = "Gets a specific script by its id",
+        summary = "Gets a specific script by its id. It also includes caching via Last-Modified header.",
         parameters = {
                 @Parameter(name = "id", in = ParameterIn.PATH, required = true)
         })
@@ -34,16 +35,7 @@ import static java.lang.annotation.ElementType.METHOD;
                 description = "Script Not Found by a specified id",
                 content = @Content(
                         mediaType = "application/problem+json",
-                        schema = @Schema(example = """
-                                {
-                                  "type": "about:blank",
-                                  "title": "Script Not Found",
-                                  "status": 404,
-                                  "detail": "There is no such a Script with id:1",
-                                  "instance": "/scripts/1",
-                                  "scriptId": 1
-                                }
-                                """)
+                        schema = @Schema(implementation = ErrorResponseSchema.class)
                 )
         )
 })

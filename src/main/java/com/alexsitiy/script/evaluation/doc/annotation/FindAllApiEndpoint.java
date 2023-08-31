@@ -1,4 +1,4 @@
-package com.alexsitiy.script.evaluation.doc;
+package com.alexsitiy.script.evaluation.doc.annotation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

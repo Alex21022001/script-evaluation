@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
+import com.alexsitiy.script.evaluation.doc.FindAllScriptsApiEndpoint;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
@@ -8,7 +9,7 @@ import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.ScriptService;
 import com.alexsitiy.script.evaluation.validation.CheckScript;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -54,6 +55,7 @@ import java.util.Set;
 @RequestMapping("/scripts")
 @ExposesResourceFor(ScriptReadDto.class)
 @Validated
+@Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
 public class ScriptRestController {
 
     private final ScriptExecutionService scriptExecutionService;
@@ -103,12 +105,9 @@ public class ScriptRestController {
 //     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
 //     */
     @GetMapping
-    @Operation(summary = "Obtains all available scripts, includes sorting and filtering",
-            parameters = {
-                    @Parameter(name = "filter", allowEmptyValue = true, example = "IN_QUEUE,COMPLETED,INTERRUPTED"),
-                    @Parameter(name = "sort", allowEmptyValue = true, example = "TIME,id")
-            })
-    public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite @RequestParam(value = "statuses", required = false) Set<Status> statuses,
+    @FindAllScriptsApiEndpoint
+    public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite
+                                                                  @RequestParam(value = "statuses", required = false) Set<Status> statuses,
                                                                   @NonComposite @RequestParam(value = "sorts", required = false) List<String> sorts) {
 
         return ResponseEntity.ok(scriptReadMapper.toCollectionModel(scriptService.findAll(statuses, sorts)));

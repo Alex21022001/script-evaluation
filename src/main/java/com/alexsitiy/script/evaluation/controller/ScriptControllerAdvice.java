@@ -5,6 +5,7 @@ import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -44,6 +45,7 @@ public class ScriptControllerAdvice {
     public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(ConstraintViolationException e){
        return ResponseEntity
                .badRequest()
+               .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                .body(ValidationErrorResponse.of(e.getConstraintViolations()));
     }
 }

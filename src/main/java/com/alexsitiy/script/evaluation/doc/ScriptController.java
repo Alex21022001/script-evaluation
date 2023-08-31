@@ -3,6 +3,7 @@ package com.alexsitiy.script.evaluation.doc;
 import com.alexsitiy.script.evaluation.doc.annotation.FindAllApiEndpoint;
 import com.alexsitiy.script.evaluation.doc.annotation.FindByIdApiEndpoint;
 import com.alexsitiy.script.evaluation.doc.annotation.GetBodyApiEndpoint;
+import com.alexsitiy.script.evaluation.doc.annotation.GetResultApiEndpoint;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.model.Status;
 import org.springframework.hateoas.CollectionModel;
@@ -23,6 +24,7 @@ public interface ScriptController {
     @GetBodyApiEndpoint
     ResponseEntity<String> getBody(Integer id, WebRequest request);
 
+    @GetResultApiEndpoint
     ResponseEntity<String> getResult(Integer id, WebRequest request);
 
 //    ResponseEntity<ScriptReadDto> evaluate(String jsCode);

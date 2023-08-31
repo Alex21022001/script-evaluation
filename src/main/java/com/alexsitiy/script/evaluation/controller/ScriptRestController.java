@@ -1,6 +1,7 @@
 package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.doc.ScriptController;
+import com.alexsitiy.script.evaluation.doc.annotation.EvaluateApiEndpoint;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
@@ -142,7 +143,7 @@ public class ScriptRestController implements ScriptController {
     public ResponseEntity<String> getBody(@PathVariable Integer id, WebRequest request) {
         Script script = scriptService.findById(id);
 
-        if (request.checkNotModified(String.valueOf(script.getId())))
+        if (request.checkNotModified(String.valueOf(script.getBody().hashCode())))
             return null;
 
         return ResponseEntity
@@ -190,7 +191,7 @@ public class ScriptRestController implements ScriptController {
      * //
      */
     @PostMapping
-    @Operation(summary = "Evaluates passed script")
+    @EvaluateApiEndpoint
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
                                                   @CheckScript
                                                   @RequestBody String jsCode) {

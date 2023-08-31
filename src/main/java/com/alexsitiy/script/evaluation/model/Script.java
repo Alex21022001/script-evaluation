@@ -8,7 +8,6 @@ import org.graalvm.polyglot.SandboxPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,7 +39,7 @@ public final class Script implements Runnable {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
-        this.result = new CyclicByteArrayOutputStream(1024);
+        this.result = new CyclicByteArrayOutputStream(2048);
         this.context = createContext();
     }
 
@@ -134,8 +133,8 @@ public final class Script implements Runnable {
         return body;
     }
 
-    public OutputStream getResult() {
-        return result;
+    public String getResult() {
+        return result.toString();
     }
 
 

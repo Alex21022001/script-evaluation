@@ -69,8 +69,7 @@ public final class ScriptExecutionService {
      * @return true - if the script by id was found and stopped, false - if not.
      */
     public void stopById(Integer id) {
-        Script script = scriptService.findById(id);
-        script.stop();
+       scriptService.findById(id).stop();
     }
 
 }

@@ -133,31 +133,50 @@ public class ScriptRestController {
         Script script = scriptService.findById(id);
 
         if (request.checkNotModified(script.getLastModified()))
-            return ResponseEntity.status(304).build();
+            return null;
 
         return ResponseEntity
                 .ok()
                 .cacheControl(CacheControl.noCache().cachePrivate())
-                .lastModified(script.getLastModified())
                 .body(scriptReadMapper.toModelWithAllLinks(script));
     }
 
     @GetMapping(value = "/{id}/body", produces = {"text/plain"})
-    public ResponseEntity<String> getBody(@PathVariable Integer id) {
+    public ResponseEntity<String> getBody(@PathVariable Integer id, WebRequest request) {
+        Script script = scriptService.findById(id);
+
+        if (request.checkNotModified(String.valueOf(script.getId())))
+            return null;
+
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.LINK,
                         entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
-                .body(scriptService.getBodyById(id));
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .body(script.getBody());
     }
 
     @GetMapping(value = "/{id}/result", produces = {"text/plain"})
-    public ResponseEntity<String> getResult(@PathVariable Integer id) {
+    public ResponseEntity<String> getResult(@PathVariable Integer id, WebRequest request) {
+        Script script = scriptService.findById(id);
+
+        if (Status.isFinished(script.getStatus())) {
+            if (request.checkNotModified(script.getLastModified()))
+                return null;
+
+            return ResponseEntity
+                    .ok()
+                    .header(HttpHeaders.LINK,
+                            entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                    .cacheControl(CacheControl.noCache().cachePrivate())
+                    .body(script.getResult());
+        }
+
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.LINK,
                         entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
-                .body(scriptService.getResultById(id));
+                .body(script.getResult());
     }
 
     /**

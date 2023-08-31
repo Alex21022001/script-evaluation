@@ -58,16 +58,6 @@ public final class ScriptService {
         return script;
     }
 
-    public String getBodyById(Integer id) {
-        Script script = findById(id);
-        return script.getBody();
-    }
-
-    public String getResultById(Integer id) {
-        Script script = findById(id);
-        return script.getResult().toString();
-    }
-
     public void save(Script script) {
         scripts.put(script.getId(), script);
     }

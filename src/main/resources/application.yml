@@ -7,3 +7,7 @@ server:
     enabled: true
     mime-types: text/plain
     min-response-size: 1KB
+springdoc:
+  swagger-ui:
+    operations-sorter: method
+    tags-sorter: alpha

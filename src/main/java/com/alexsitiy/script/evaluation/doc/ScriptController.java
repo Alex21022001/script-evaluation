@@ -1,11 +1,9 @@
 package com.alexsitiy.script.evaluation.doc;
 
-import com.alexsitiy.script.evaluation.doc.annotation.FindAllApiEndpoint;
-import com.alexsitiy.script.evaluation.doc.annotation.FindByIdApiEndpoint;
-import com.alexsitiy.script.evaluation.doc.annotation.GetBodyApiEndpoint;
-import com.alexsitiy.script.evaluation.doc.annotation.GetResultApiEndpoint;
+import com.alexsitiy.script.evaluation.doc.annotation.*;
 import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.model.Status;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
@@ -13,6 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 import java.util.Set;
 
+@Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
 public interface ScriptController {
 
     @FindAllApiEndpoint
@@ -27,9 +26,9 @@ public interface ScriptController {
     @GetResultApiEndpoint
     ResponseEntity<String> getResult(Integer id, WebRequest request);
 
-//    ResponseEntity<ScriptReadDto> evaluate(String jsCode);
-
+    @StopApiEndpoint
     ResponseEntity<?> stop(Integer id);
 
+    @DeleteApiEndpoint
     ResponseEntity<?> delete(Integer id);
 }

@@ -9,8 +9,6 @@ import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.ScriptService;
 import com.alexsitiy.script.evaluation.validation.CheckScript;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -56,7 +54,6 @@ import java.util.Set;
 @RequestMapping("/scripts")
 @ExposesResourceFor(ScriptReadDto.class)
 @Validated
-@Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
 public class ScriptRestController implements ScriptController {
 
     private final ScriptExecutionService scriptExecutionService;
@@ -215,7 +212,6 @@ public class ScriptRestController implements ScriptController {
 //     * @see HttpStatus
 //     */
     @PostMapping("/{id}")
-    @Operation(summary = "Terminates a specific script by its id. Returns 404(NOT_FOUND) if such a script was not found in the pool or queue")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
         scriptExecutionService.stopById(id);
 
@@ -238,7 +234,6 @@ public class ScriptRestController implements ScriptController {
 //     * @see HttpStatus
 //     */
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletes a COMPLETED,INTERRUPTED,FAILED script by its id")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         scriptService.delete(id);
 

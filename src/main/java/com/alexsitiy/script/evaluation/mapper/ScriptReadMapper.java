@@ -45,14 +45,22 @@ public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script
     public ScriptReadDto toModelWithAllLinks(Script entity) {
         return toModel(entity)
                 .add(linkTo(methodOn(CONTROLLER_CLASS)
-                        .getBody(entity.getId(),null)).withSelfRel().withDeprecation("Gets the body of the script"))
+                        .getBody(entity.getId(), null)).withSelfRel().withDeprecation("Gets the body of the script"))
                 .add(linkTo(methodOn(CONTROLLER_CLASS)
-                        .getResult(entity.getId(),null)).withSelfRel().withDeprecation("Gets the result of the running script"))
+                        .getResult(entity.getId(), null)).withSelfRel().withDeprecation("Gets the result of the running script"))
                 .add(linkTo(methodOn(CONTROLLER_CLASS)
                         .findAll(Set.of(Status.COMPLETED, Status.EXECUTING), List.of("TIME", "scheduled"))).withRel("allScripts"))
                 .add(entityLinks.linkToItemResource(MODEL_CLASS, entity.getId())
                         .withRel("stop").withType("POST").withDeprecation("Terminates the running script"))
                 .add(entityLinks.linkToItemResource(MODEL_CLASS, entity.getId())
                         .withRel("delete").withType("DELETE").withDeprecation("Deletes a finished script"));
+    }
+
+    public String getSelfLink(Integer id) {
+        return entityLinks.linkToItemResource(MODEL_CLASS, id).toString();
+    }
+
+    public String getAllScriptsLink() {
+        return entityLinks.linkToCollectionResource(CONTROLLER_CLASS).withRel("allScripts").toString();
     }
 }

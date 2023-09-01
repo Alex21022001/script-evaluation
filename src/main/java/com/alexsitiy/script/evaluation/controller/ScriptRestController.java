@@ -25,31 +25,34 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 import java.util.Set;
 
-///**
-// * The main Rest controller that is responsible for obtaining user's
-// * request which can include the following:
-// * <br/>
-// * 1. Evaluation of the JavaScript code.
-// * <br/>
-// * 2. Getting all scripts
-// * <br/>
-// * 3. Getting a specific script by its id.
-// * <br/>
-// * 4. Stopping a specific script.
-// * <br/>
-// * 5. Deleting already executed script by its id.
-// * <br/>
-// * This rest controller uses {@link org.springframework.hateoas.server.mvc.WebMvcLinkBuilder} to
-// * build appropriate HATEOAS links in representations. It also includes Swagger descriptions
-// * that is useful for testing the API.
-// *
-// * @see com.alexsitiy.script.evaluation.model.JSScript
-// * @see JSScriptService
-// * @see ScriptExecutionService
-// * @see JSScriptReadDto
-// * @see JSScriptFullReadDto
-// * @see ResponseEntity
-// */
+/**
+ * The main Rest controller that is responsible for obtaining user's
+ * request which can include the following:
+ * <br/>
+ * 1. Evaluates the JavaScript code.
+ * <br/>
+ * 2. Gets all scripts.
+ * <br/>
+ * 3. Gets a specific script by its id.
+ * <br/>
+ * 4. Gets script's body by script's id.
+ * <br/>
+ * 5. Gets script's result by script's id.
+ * <br/>
+ * 6. Stops a specific script by its id.
+ * <br/>
+ * 7. Deletes already finished script by its id.
+ * <br/>
+ * This controller uses {@link EntityLinks} and {@linkplain org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport} to
+ * build appropriate HATEOAS links in representations and Link headers.
+ * <br/>
+ * It also includes Swagger descriptions that is useful for testing the API.
+ *
+ * @see com.alexsitiy.script.evaluation.model.Script
+ * @see ScriptService
+ * @see ScriptExecutionService
+ * @see ScriptReadDto
+ */
 @RestController
 @RequestMapping("/scripts")
 @ExposesResourceFor(ScriptReadDto.class)
@@ -59,69 +62,69 @@ public class ScriptRestController implements ScriptController {
     private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
 
-    private final EntityLinks entityLinks;
     private final ScriptReadMapper scriptReadMapper;
 
 
     @Autowired
     public ScriptRestController(ScriptExecutionService scriptExecutionService,
                                 ScriptService scriptService,
-                                EntityLinks entityLinks,
                                 ScriptReadMapper scriptReadMapper) {
         this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
-        this.entityLinks = entityLinks;
         this.scriptReadMapper = scriptReadMapper;
     }
 
-    //    /**
-//     * Finds all scripts which are storing in {@link com.alexsitiy.script.evaluation.repository.JSScriptRepository}
-//     * according to passed {@link JSScriptFilter} and {@link JSScriptSort} objects.
-//     * <br/>
-//     * Sorting includes the following options:
-//     * <br/>
-//     * 1. id - sorts by script's id (asc)
-//     * <br/>
-//     * 2. ID - sorts by script;s id (desc)
-//     * <br/>
-//     * 3. time - sorts by script's execution time (asc)
-//     * <br/>
-//     * 4. TIME - sorts by script's execution time (desc)
-//     * <br/>
-//     * Filtering includes: COMPLETED,FAILED,INTERRUPTED,EXECUTING,IN_QUEUE.
-//     * <p/>
-//     * After getting the List of scripts adds HATEOAS link to each of them via {@code for-each}.
-//     *
-//     * @param filter an object that stores the information for filtering the script during the selection.
-//     * @param sort   an object created via {@link com.alexsitiy.script.evaluation.config.JSScriptSortHandlerMethod} that us
-//     *               used for sorting scripts.
-//     * @return {@link ResponseEntity<CollectionModel>}(CollectionModel) that is used for HATEOAS representation,
-//     * it comprises {@link JSScriptReadDto}. Also returns 200(OK) status code.
-//     * @see HttpStatus
-//     * @see JSScriptService
-//     * @see com.alexsitiy.script.evaluation.model.Status
-//     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-//     */
+    /**
+     * Finds all scripts according to passed statuses (filter) and sorts (sort) objects.
+     * <br/>
+     * Sorting includes the following options:
+     * <br/>
+     * 1. id - sorts by script's id (asc).
+     * <br/>
+     * 2. ID - sorts by script's id (desc).
+     * <br/>
+     * 3. time - sorts by script's execution time (asc).
+     * <br/>
+     * 4. TIME - sorts by script's execution time (desc).
+     * <br/>
+     * 5. scheduled - sorts by script's scheduled time (asc).
+     * <br/>
+     * 6. SCHEDULED - sorts by script's scheduled time (desc).
+     * <br/>
+     * Filtering available values: COMPLETED,FAILED,INTERRUPTED,EXECUTING,IN_QUEUE.
+     * <p/>
+     * After getting the List of scripts adds HATEOAS link to each of them via {@link ScriptReadMapper}
+     * that expands {@link org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport}.
+     *
+     * @param statuses List of {@link Status} that is used for filtering scripts.
+     * @param sorts    List of String that is used for sorting scripts.
+     * @return {@link CollectionModel} that is used for HATEOAS representation of the collection,
+     * it comprises {@link ScriptReadDto}. Also returns 200(OK) status code.
+     * @see ScriptService
+     */
     @GetMapping
     public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite
                                                                   @RequestParam(value = "statuses", required = false) Set<Status> statuses,
-                                                                  @NonComposite @RequestParam(value = "sorts", required = false) List<String> sorts) {
+                                                                  @NonComposite
+                                                                  @RequestParam(value = "sorts", required = false) List<String> sorts) {
 
         return ResponseEntity.ok(scriptReadMapper.toCollectionModel(scriptService.findAll(statuses, sorts)));
     }
 
-    //    /**
-//     * Finds {@linkplain com.alexsitiy.script.evaluation.model.JSScript} by its id. And returns
-//     * its representation, also adds HATEOAS links to it.
-//     *
-//     * @param id script's id
-//     * @return {@link ResponseEntity} that comprises {@link JSScriptFullReadDto},
-//     * it also return 200(OK) or 404(NOT_FOUND) if there is no script with a requested id.
-//     * @see JSScriptService
-//     * @see JSScriptFullReadDto
-//     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-//     * @see HttpStatus
-//     */
+    /**
+     * Finds {@linkplain com.alexsitiy.script.evaluation.model.Script} by its id. And returns
+     * its representation {@link ScriptReadDto}, also adds HATEOAS links to it via
+     * {@link ScriptReadMapper} and its method - toModelWithAllLinks().
+     * <br/>
+     * It also includes caching, It caches the response via Cache-Control and Last-Modified headers
+     * and validates the cache everytime to ensure that script with a specified id still exists and was not deleted.
+     *
+     * @param id      script's id
+     * @param request it's used for cache validation, setting Last-Modified header and returning 304(NOT-MODIFIED)
+     *                status if cache is valid.
+     * @return {@link ScriptReadDto} with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
+     * @see ScriptService
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id,
                                                   WebRequest request) {
@@ -136,6 +139,19 @@ public class ScriptRestController implements ScriptController {
                 .body(scriptReadMapper.toModelWithAllLinks(script));
     }
 
+    /**
+     * Finds Script's body by script's id. And returns it if exists.
+     * It also adds HATEOAS self link to Link header via {@link EntityLinks}.
+     * <br/>
+     * It also includes caching, It caches the response via Cache-Control and ETag headers
+     * and validates the cache everytime to ensure that script with a specified id still exists and was not deleted.
+     *
+     * @param id      script's id
+     * @param request it's used for cache validation, setting ETag header and returning 304(NOT-MODIFIED)
+     *                status if cache is valid.
+     * @return {@link String} that is representation of the script's body with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
+     * @see ScriptService
+     */
     @GetMapping(value = "/{id}/body", produces = {"text/plain"})
     public ResponseEntity<String> getBody(@PathVariable Integer id, WebRequest request) {
         Script script = scriptService.findById(id);
@@ -145,54 +161,63 @@ public class ScriptRestController implements ScriptController {
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.LINK,
-                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .header(HttpHeaders.LINK, scriptReadMapper.getSelfLink(id))
                 .cacheControl(CacheControl.noCache().cachePrivate())
                 .body(script.getBody());
     }
 
+    /**
+     * Finds Script's result by script's id. And returns it if exists.
+     * It also adds HATEOAS self link to Link header via {@link EntityLinks}.
+     * <br/>
+     * It includes caching, It caches the response via Cache-Control and Last-Modified headers if script
+     * has already finished and validates the cache everytime to ensure that script with a specified id still exists and was not deleted.
+     *
+     * @param id      script's id
+     * @param request it's used for cache validation, setting ETag header and returning 304(NOT-MODIFIED)
+     *                status if cache is valid.
+     * @return {@link String} that is representation of the script's result with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
+     * @see ScriptService
+     */
     @GetMapping(value = "/{id}/result", produces = {"text/plain"})
     public ResponseEntity<String> getResult(@PathVariable Integer id, WebRequest request) {
         Script script = scriptService.findById(id);
 
+        String selfLink = scriptReadMapper.getSelfLink(id);
         if (Status.isFinished(script.getStatus())) {
             if (request.checkNotModified(script.getLastModified()))
                 return null;
 
             return ResponseEntity
                     .ok()
-                    .header(HttpHeaders.LINK,
-                            entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                    .header(HttpHeaders.LINK, selfLink)
                     .cacheControl(CacheControl.noCache().cachePrivate())
                     .body(script.getResult());
         }
 
         return ResponseEntity
                 .ok()
-                .header(HttpHeaders.LINK,
-                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .header(HttpHeaders.LINK, selfLink)
                 .body(script.getResult());
     }
 
     /**
-     * //     * Receives JavaScript as a String to evaluate it. After submitting the script
-     * //     * to ThreadPool returns its representation that also includes HATEOAS links.
-     * //     *
-     * //     * @param jsCode JavaScript code that is evaluated.
-     * //     * @return {@link ResponseEntity} that comprises afaf.
-     * //     * It also returns 201(CREATED) status code.
-     * //     * @see ScriptExecutionService
-     * //     * @see com.alexsitiy.script.evaluation.thread.ScriptThreadPool
-     * //     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-     * //     * @see HttpStatus
-     * //
+     * Sends a given JavaScript to evaluation, but before validating it via
+     * {@link CheckScript} that utilizes {@link com.alexsitiy.script.evaluation.validation.ScriptValidator}
+     * as a validator. Returns {@link ScriptReadDto} that includes HATEOAS links
+     * to related resources.
+     *
+     * @param jsCode JavaScript code that need to be evaluated.
+     * @return {@link ScriptReadDto} - that is a representation with HATEOAS links.
+     * It also returns 202(ACCEPTED) status code.
+     * @see ScriptExecutionService
+     * @see ScriptReadMapper
      */
     @PostMapping
     @EvaluateApiEndpoint
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
                                                   @CheckScript
                                                   @RequestBody String jsCode) {
-
         Script script = scriptExecutionService.evaluate(jsCode);
 
         return ResponseEntity
@@ -200,46 +225,42 @@ public class ScriptRestController implements ScriptController {
                 .body(scriptReadMapper.toModel(script));
     }
 
-    //    /**
-//     * Terminates the script that is currently running by its id, returns 404(NOT_FOUND) status code
-//     * if such a script was not found.
-//     *
-//     * @param id running script's id
-//     * @return 204(NO_CONTENT) if script was stopped, 404(NOT_FOUND) - if the script was not found.
-//     * @see com.alexsitiy.script.evaluation.model.JSScript
-//     * @see ScriptExecutionService
-//     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-//     * @see HttpStatus
-//     */
+    /**
+     * Terminates the script by its id that is currently running. Returns
+     * 204(NOT_CONTENT) with Link header that contains self HATEOAS link.
+     *
+     * @param id running script's id.
+     * @return 204(NO_CONTENT).
+     * @see com.alexsitiy.script.evaluation.model.Script
+     * @see ScriptExecutionService
+     * @see ScriptReadMapper
+     */
     @PostMapping("/{id}")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
         scriptExecutionService.stopById(id);
 
         return ResponseEntity
                 .noContent()
-                .header(HttpHeaders.LINK,
-                        entityLinks.linkForItemResource(ScriptReadDto.class, id).withSelfRel().toString())
+                .header(HttpHeaders.LINK, scriptReadMapper.getSelfLink(id))
                 .build();
     }
 
-    //    /**
-//     * Deletes the script that is stored in {@link com.alexsitiy.script.evaluation.repository.JSScriptRepository}
-//     * by its id. Returns 404(NOT_FOUND) status code if such a script was not found.
-//     *
-//     * @param id script's id
-//     * @return 204(NO_CONTENT) if script was deleted, 404(NOT_FOUND) - if the script was not found.
-//     * @see com.alexsitiy.script.evaluation.model.JSScript
-//     * @see ScriptExecutionService
-//     * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
-//     * @see HttpStatus
-//     */
+    /**
+     * Deletes the script by its id and returns 204(NO_CONTENT) with Link header that contains self HATEOAS link.
+     *
+     * @param id running script's id.
+     * @return 204(NO_CONTENT).
+     * @see com.alexsitiy.script.evaluation.model.Script
+     * @see ScriptService
+     * @see ScriptReadMapper
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         scriptService.delete(id);
 
         return ResponseEntity
                 .noContent()
-                .header(HttpHeaders.LINK, entityLinks.linkToCollectionResource(ScriptReadDto.class).withRel("allScripts").toString())
+                .header(HttpHeaders.LINK, scriptReadMapper.getAllScriptsLink())
                 .build();
     }
 

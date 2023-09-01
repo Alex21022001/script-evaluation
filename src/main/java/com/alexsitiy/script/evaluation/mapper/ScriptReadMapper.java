@@ -87,6 +87,6 @@ public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script
      * @return {@link String} - representation of Link.
      */
     public String getAllScriptsLink() {
-        return entityLinks.linkToCollectionResource(CONTROLLER_CLASS).withRel("allScripts").toString();
+        return entityLinks.linkToCollectionResource(MODEL_CLASS).withRel("allScripts").toString();
     }
 }

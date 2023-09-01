@@ -3,6 +3,12 @@ package com.alexsitiy.script.evaluation.model;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+/**
+ * It's a realization of {@link OutputStream} interface that is used
+ * as a stdout and stderr for running JavaScript code that utilizes {@link ByteArrayOutputStream}
+ * as the main object.
+ * It aims to alleviate the load on the heap by providing limited capacity for buffer.
+ */
 public class CyclicByteArrayOutputStream extends OutputStream {
     private final ByteArrayOutputStream outputStream;
     private final int maxCapacity;
@@ -14,7 +20,7 @@ public class CyclicByteArrayOutputStream extends OutputStream {
 
 
     @Override
-    public void write(int b) {
+    public synchronized void write(int b) {
         if (outputStream.size() < maxCapacity) {
             outputStream.write(b);
         } else {
@@ -24,7 +30,7 @@ public class CyclicByteArrayOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b, int off, int len) {
+    public synchronized void write(byte[] b, int off, int len) {
         if (outputStream.size() + len < maxCapacity) {
             outputStream.write(b, off, len);
         } else if (len < maxCapacity) {

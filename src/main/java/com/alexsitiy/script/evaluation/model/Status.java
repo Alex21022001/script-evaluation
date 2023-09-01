@@ -2,8 +2,6 @@ package com.alexsitiy.script.evaluation.model;
 
 /**
  * The Enum with possible statuses for script's evaluation.
- *
- * @see JSScript
  */
 public enum Status {
     IN_QUEUE,
@@ -12,10 +10,10 @@ public enum Status {
     FAILED,
     INTERRUPTED;
 
+    /**
+     * Check whether a given status pertains to one of the finished statuses.
+     * */
     public static boolean isFinished(Status status) {
-        if (status == INTERRUPTED || status == FAILED || status == COMPLETED)
-            return true;
-
-        return false;
+        return status == INTERRUPTED || status == FAILED || status == COMPLETED;
     }
 }

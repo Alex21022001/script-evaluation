@@ -38,10 +38,10 @@ public class ScriptControllerAdvice {
 
     /**
      * Handles {@linkplain IllegalStateException} that can occur when
-     * user trys to delete script that has not finished yet. Returns 406(METHOD_NOT_ALLOWED).
+     * user trys to delete script that has not finished yet. Returns 405(METHOD_NOT_ALLOWED).
      *
      * @param e IllegalStateException that need to be solved.
-     * @return {@linkplain ProblemDetail} - representation of the response with 406 status code.
+     * @return {@linkplain ProblemDetail} - representation of the response with 405 status code.
      * */
     @ExceptionHandler(IllegalStateException.class)
     public ProblemDetail handleIllegalStateException(IllegalStateException e) {

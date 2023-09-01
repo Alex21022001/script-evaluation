@@ -9,25 +9,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-
+/**
+ * The main model of the app that is used to run JavaScript code and to
+ * store information about execution. It implements {@link Runnable} interface
+ * that allows to run script in async way.
+ * <br/>
+ * It utilizes {@link Context} for running JavaScript code.
+ */
 public final class Script implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(Script.class);
-    private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    private static final AtomicInteger idGenerator = new AtomicInteger();
 
     private final Integer id;
     private final AtomicReference<Status> status;
     private volatile long executionTime;
-    private volatile long lastModified = -1;
+    private volatile long lastModified;
     private volatile Instant scheduledTime;
     private final String body;
     private final CyclicByteArrayOutputStream result;
@@ -35,6 +38,12 @@ public final class Script implements Runnable {
     private CompletableFuture<Void> task;
     private Context context;
 
+    /**
+     * Creates an instance of {@link Script} with generated id. It also
+     * initializes the following fields: status,result,context.
+     *
+     * @param body the JavaScript code that is needed to be executed.
+     */
     public Script(String body) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
@@ -43,6 +52,16 @@ public final class Script implements Runnable {
         this.context = createContext();
     }
 
+    /**
+     * Creates an instance of {@link Context} that will be used to
+     * run JavaCode.
+     * <br/>
+     * It also includes {@link SandboxPolicy} as a CONSTRAINED in order to restrict
+     * the running JavaScript code and make the app more independent.
+     * <br/>
+     * It utilizes {@link CyclicByteArrayOutputStream} as a stdout and stderr that
+     * ensures max capacity in order to alleviate the load on the heap.
+     */
     private Context createContext() {
         return Context.newBuilder("js")
                 .engine(Engine.newBuilder("js")
@@ -54,24 +73,33 @@ public final class Script implements Runnable {
                 .build();
     }
 
+    /**
+     * Terminates JavaScript code from executing or deletes it from
+     * the thread pool's queue to release resources. Utilizes {@link CompletableFuture} to
+     * do it.
+     * <br/>
+     * It also changes the script's status to INTERRUPTED and writes to stderr if
+     * the task was deleted from the queue.
+     */
     public void stop() {
         if (task != null && !task.isDone()) {
             task.cancel(true);
-            try {
-                context.interrupt(Duration.of(1, ChronoUnit.SECONDS));
-            } catch (TimeoutException e) {
-                context.close(true);
-            } finally {
-                if (this.status.get() == Status.IN_QUEUE) {
-                    this.status.set(Status.INTERRUPTED);
-                    this.lastModified = Instant.now().toEpochMilli();
-                    this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
-                }
-                log.debug("Script {} was forcibly closed", this);
+            context.close(true);
+
+            if (this.status.get() == Status.IN_QUEUE) {
+                this.status.set(Status.INTERRUPTED);
+                this.lastModified = Instant.now().toEpochMilli();
+                this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
+                releaseResources();
+                log.debug("Script {} was deleted from the queue", this);
             }
         }
     }
 
+    /**
+     * Runs a given JavaScript code via {@link Context} and changes
+     * script's status, executionTime, lastModified fields during execution.
+     */
     @Override
     public void run() {
         long start = 0;
@@ -94,7 +122,7 @@ public final class Script implements Runnable {
             this.lastModified = Instant.now().toEpochMilli();
 
             if (e.isGuestException()) {
-                if (e.isInterrupted()) {
+                if (e.isInterrupted() || e.isCancelled()) {
                     this.status.set(Status.INTERRUPTED);
                     log.debug("Script {} was interrupted", this);
                 } else {
@@ -102,11 +130,16 @@ public final class Script implements Runnable {
                     log.debug("Script {} is failed", this);
                 }
             }
-            this.result.write(("Error: "+ExceptionUtils.getStackTrace(e)).getBytes(StandardCharsets.UTF_8));
+            this.result.write(("Error: " + ExceptionUtils.getStackTrace(e)).getBytes(StandardCharsets.UTF_8));
         } finally {
             this.context.close();
-            this.context = null;
+            releaseResources();
         }
+    }
+
+    private void releaseResources() {
+        this.context = null;
+        this.task = null;
     }
 
     public Instant getScheduledTime() {

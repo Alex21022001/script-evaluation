@@ -1,9 +1,9 @@
 package com.alexsitiy.script.evaluation.service;
 
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
@@ -11,16 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The implementation of  that uses {@linkplain } as
- * a representation of an evaluation and {@link String} as a script to evaluate JavaScript code.
+ * This class is used for running and stopping scripts.
  * <p/>
- * Utilizes {@link JSScriptRepository} to create and save the script.
- * Uses  to run scripts asynchronously.
- * This implementation also uses Spring Cache to prevent running the same scripts.
+ * Utilizes {@link ScriptService} to save and get the script.
+ * Uses {@link TaskExecutor} to run scripts asynchronously.
  *
  * @see com.alexsitiy.script.evaluation.model.Script
- * @see com.alexsitiy.script.evaluation.config.CachingConfiguration
- * @see org.springframework.cache.CacheManager
  */
 @Service
 public final class ScriptExecutionService {
@@ -37,14 +33,13 @@ public final class ScriptExecutionService {
 
 
     /**
-     * Runs given JavaScript code in another Thread to evaluate the script. Utilizes {@link Cacheable}
-     * for saving already passed script in order to prevent them from running one more time and consuming
-     * system resources.
+     * Runs a given JavaScript code in a separate Thread to evaluate the script.
+     * It also saves the script in the storage via {@link ScriptService}
      *
      * @param jsCode JavaScript code passed for evaluation.
-     * @return - as a representation of JavaScript code that contains
+     * @return {@link Script} as a representation of JavaScript code that holds
      * all the necessary information about it.
-     * @see JSScriptRepository
+     * @throws CapacityViolationException if there is no free place in the thread pool.
      */
 
     public Script evaluate(String jsCode) {
@@ -63,13 +58,14 @@ public final class ScriptExecutionService {
     }
 
     /**
-     * Stops the script by its id.
+     * Terminates the script by its id.
      *
-     * @param id id of the running script
-     * @return true - if the script by id was found and stopped, false - if not.
+     * @param id id of the running script.
+     * @throws NoSuchScriptException if the script with a given id was not found.
+     * @see ScriptService
      */
     public void stopById(Integer id) {
-       scriptService.findById(id).stop();
+        scriptService.findById(id).stop();
     }
 
 }

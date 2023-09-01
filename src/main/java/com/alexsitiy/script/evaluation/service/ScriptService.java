@@ -11,11 +11,11 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-///**
-// * This class is used for CRUD operations over {@link com.alexsitiy.script.evaluation.model.JSScript},
-// * exploits {@link JSScriptRepository} for it. It also returns representations of the {@link com.alexsitiy.script.evaluation.model.JSScript}
-// * such as {@link JSScriptFullReadDto} and {@link JSScriptReadDto} by using {@link JSScriptFullReadMapper} and {@link JSScriptReadMapper}.
-// */
+/**
+ * This class is used for CRUD operations over {@link Script}.
+ * It utilizes {@link ConcurrentHashMap} to store scripts.
+ * It also includes caching via {@link ConcurrentHashMap} for {@link Comparator} that is used for soring scripts.
+ */
 @Service
 public final class ScriptService {
 
@@ -25,15 +25,14 @@ public final class ScriptService {
     private final Map<List<String>, Comparator<Script>> sortCache = new ConcurrentHashMap<>();
 
 
-    //        /**
-//     * Look for all {@link com.alexsitiy.script.evaluation.model.JSScript} according to passing
-//     * {@link JSScriptFilter} and {@link JSScriptSort} and return their representations in the {@link List}.
-//     *
-//     * @param filter is used for filtering scripts.
-//     * @param sort   is used for soring scripts.
-//     * @return {@link List<JSScriptFullReadDto>} - the list of the representations of the obtained scripts.
-//     * @see JSScriptReadMapper
-//     */
+    /**
+     * Finds all {@link Script} according to passing
+     * statuses (filter) and sorts (sort) and return them in the {@link List}.
+     *
+     * @param statuses is used for filtering scripts.
+     * @param sorts    is used for soring scripts.
+     * @return {@link List<Script>} - the list of the found scripts.
+     */
     public List<Script> findAll(Set<Status> statuses, List<String> sorts) {
         return scripts.values().stream()
                 .filter(filteredBy(statuses))
@@ -42,13 +41,13 @@ public final class ScriptService {
     }
 
 
-    //
-//    /**
-//     * Look for a specific script by its id and return its representation {@link JSScriptFullReadDto}.
-//     *
-//     * @param id id of the searching script.
-//     * @return {@link Optional>}
-//     */
+    /**
+     * Finds a specific {@link Script} by its id and return it.
+     *
+     * @param id id of the searching script.
+     * @return {@link Script} - found script.
+     * @throws NoSuchScriptException if the script with a given id was not found.
+     */
     public Script findById(Integer id) {
         Script script = scripts.get(id);
 
@@ -58,6 +57,9 @@ public final class ScriptService {
         return script;
     }
 
+    /**
+     * Saves a given {@link Script} to storage.
+     */
     public void save(Script script) {
         scripts.put(script.getId(), script);
     }
@@ -67,7 +69,8 @@ public final class ScriptService {
      * next statuses: COMPLETED,FAILED,INTERRUPTED.
      *
      * @param id the id of the script
-     * @return true - if the script was deleted, false - not.
+     * @throws IllegalStateException if the script did have appropriate status.
+     * @throws NoSuchScriptException if the script with a given id was not found.
      * @see Status
      */
     public void delete(Integer id) {
@@ -81,6 +84,12 @@ public final class ScriptService {
         }
     }
 
+    /**
+     * Creates a Predicate for Script.
+     *
+     * @param filter Set of Status that is used for filtering scripts.
+     * @return {@link Predicate}
+     */
     private Predicate<? super Script> filteredBy(Set<Status> filter) {
         if (filter == null || filter.isEmpty())
             return script -> true;
@@ -88,6 +97,12 @@ public final class ScriptService {
         return script -> filter.contains(script.getStatus());
     }
 
+    /**
+     * Checks a comparator in cache and returns it, otherwise creates a new one and saves in cache.
+     *
+     * @param sort List of sorting values.
+     * @return {@link Comparator} that is used for sorting Scripts.
+     */
     private Comparator<Script> sortedBy(List<String> sort) {
         if (sort == null || sort.isEmpty()) {
             return (o1, o2) -> 0;
@@ -98,22 +113,8 @@ public final class ScriptService {
             return comparator;
         }
 
-        for (String value : sort) {
-            comparator = switch (value) {
-                case "id" ->
-                        (comparator == null) ? Comparator.comparingInt(Script::getId) : comparator.thenComparingInt(Script::getId);
-                case "ID" ->
-                        (comparator == null) ? Comparator.comparing(Script::getId, Comparator.reverseOrder()) : comparator.thenComparing(Script::getId, Comparator.reverseOrder());
-                case "time" ->
-                        (comparator == null) ? Comparator.comparingLong(Script::getExecutionTime) : comparator.thenComparingLong(Script::getExecutionTime);
-                case "TIME" ->
-                        (comparator == null) ? Comparator.comparing(Script::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getExecutionTime, Comparator.reverseOrder());
-                case "scheduled" ->
-                        (comparator == null) ? Comparator.comparing(Script::getScheduledTime) : comparator.thenComparing(Script::getScheduledTime);
-                case "SCHEDULED" ->
-                        (comparator == null) ? Comparator.comparing(Script::getScheduledTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getScheduledTime, Comparator.reverseOrder());
-                default -> null;
-            };
+        for (String sortValue : sort) {
+            comparator = createComparator(sortValue, comparator);
         }
 
         if (comparator == null) {
@@ -122,5 +123,23 @@ public final class ScriptService {
 
         sortCache.put(sort, comparator);
         return comparator;
+    }
+
+    private Comparator<Script> createComparator(String sortValue, Comparator<Script> comparator) {
+        return switch (sortValue) {
+            case "id" ->
+                    (comparator == null) ? Comparator.comparingInt(Script::getId) : comparator.thenComparingInt(Script::getId);
+            case "ID" ->
+                    (comparator == null) ? Comparator.comparing(Script::getId, Comparator.reverseOrder()) : comparator.thenComparing(Script::getId, Comparator.reverseOrder());
+            case "time" ->
+                    (comparator == null) ? Comparator.comparingLong(Script::getExecutionTime) : comparator.thenComparingLong(Script::getExecutionTime);
+            case "TIME" ->
+                    (comparator == null) ? Comparator.comparing(Script::getExecutionTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getExecutionTime, Comparator.reverseOrder());
+            case "scheduled" ->
+                    (comparator == null) ? Comparator.comparing(Script::getScheduledTime) : comparator.thenComparing(Script::getScheduledTime);
+            case "SCHEDULED" ->
+                    (comparator == null) ? Comparator.comparing(Script::getScheduledTime, Comparator.reverseOrder()) : comparator.thenComparing(Script::getScheduledTime, Comparator.reverseOrder());
+            default -> null;
+        };
     }
 }

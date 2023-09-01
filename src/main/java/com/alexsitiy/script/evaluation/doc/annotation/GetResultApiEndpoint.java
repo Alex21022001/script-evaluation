@@ -16,6 +16,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 
+/**
+ * This annotation is used for creating Swagger API documentation
+ * for getResult() endpoint.
+ *
+ * @see com.alexsitiy.script.evaluation.doc.ScriptController
+ * @see com.alexsitiy.script.evaluation.controller.ScriptRestController
+ * */
 @Operation(
         summary = """
                 Obtains script's result by its id.

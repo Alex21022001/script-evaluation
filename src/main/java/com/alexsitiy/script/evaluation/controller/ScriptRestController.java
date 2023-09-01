@@ -44,7 +44,8 @@ import java.util.Set;
  * 7. Deletes already finished script by its id.
  * <br/>
  * This controller uses {@link EntityLinks} and {@linkplain org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport} to
- * build appropriate HATEOAS links in representations and Link headers.
+ * build appropriate HATEOAS links in representations and Link headers. It also
+ * implements {@link ScriptController} interface for creating Swagger API documentation in declarative way.
  * <br/>
  * It also includes Swagger descriptions that is useful for testing the API.
  *

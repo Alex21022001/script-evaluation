@@ -11,6 +11,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This interface is used for creating Swagger API documentation
+ * for {@link com.alexsitiy.script.evaluation.controller.ScriptRestController} in
+ * declarative way.
+ */
 @Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
 public interface ScriptController {
 

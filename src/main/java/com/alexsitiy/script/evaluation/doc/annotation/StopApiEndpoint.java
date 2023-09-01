@@ -16,6 +16,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 
+/**
+ * This annotation is used for creating Swagger API documentation
+ * for stop() endpoint.
+ *
+ * @see com.alexsitiy.script.evaluation.doc.ScriptController
+ * @see com.alexsitiy.script.evaluation.controller.ScriptRestController
+ */
 @Operation(
         summary = "Terminates a specific script by its id",
         parameters = {
@@ -27,7 +34,7 @@ import static java.lang.annotation.ElementType.METHOD;
                 responseCode = "204",
                 description = "No Content",
                 headers = {
-                        @Header(name = "Link",description = "It includes self link to the script")
+                        @Header(name = "Link", description = "It includes self link to the script")
                 },
                 content = @Content(
                         schema = @Schema(hidden = true)

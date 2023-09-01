@@ -16,7 +16,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
-
+/**
+ * This annotation is used for creating Swagger API documentation
+ * for findById() endpoint.
+ *
+ * @see com.alexsitiy.script.evaluation.doc.ScriptController
+ * @see com.alexsitiy.script.evaluation.controller.ScriptRestController
+ * */
 @Operation(
         summary = "Gets a specific script by its id. It also includes caching via Last-Modified header.",
         parameters = {

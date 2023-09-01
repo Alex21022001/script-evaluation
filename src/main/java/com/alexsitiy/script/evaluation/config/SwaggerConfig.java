@@ -6,6 +6,12 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * This configuration class is used for Swagger API configuration.
+ * It includes configuration of info section.
+ *
+ * @see OpenAPI
+ * */
 @Configuration
 public class SwaggerConfig {
 

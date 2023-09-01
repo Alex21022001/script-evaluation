@@ -5,21 +5,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * The configuration class that is used for
- * tuning WebMvc via implementing {@link WebMvcConfigurer}.
- * <br/>
- * It adds additional {@link HandlerMethodArgumentResolver} as {}.
+ * This class is used for configuration of {@linkplain ThreadPoolTaskExecutor}
+ * that is used as the main pool for running JavaScript code. It also uses
+ * values such as {@code thread-capacity} and {@code queue-capacity} which are
+ * specified in application.properties, default values will be use if they are not.
  */
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class ThreadPoolConfiguration {
 
     @Bean
-    public TaskExecutor threadPoolTaskExecutor(@Value("${app.thread-pool.thread-capacity}") Integer poolSize,
-                                               @Value("${app.thread-pool.queue-capacity}") Integer queueSize) {
+    public TaskExecutor threadPoolTaskExecutor(@Value("${app.thread-pool.thread-capacity:2}") Integer poolSize,
+                                               @Value("${app.thread-pool.queue-capacity:5}") Integer queueSize) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(poolSize);
         executor.setMaxPoolSize(poolSize);

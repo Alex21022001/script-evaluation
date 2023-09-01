@@ -7,28 +7,33 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * This class is a representation of validation error that is used
+ * to inform user of not passing validation.
+ * <br/>
+ * It's used by {@link com.alexsitiy.script.evaluation.controller.ScriptControllerAdvice}
+ */
+@SuppressWarnings({"unused"})
 public final class ValidationErrorResponse {
 
-    private final int status = 400;
-    private final String error = "Bad Request";
+    private final int status;
+    private final String error;
     private final Instant timestamp = Instant.now();
     private final List<Violation> violations;
 
-
     private ValidationErrorResponse(List<Violation> violations) {
         this.violations = violations;
+        this.status = 400;
+        this.error = "Bad Request";
     }
 
     public static ValidationErrorResponse of(Set<ConstraintViolation<?>> constraintViolations) {
         List<Violation> violations = new ArrayList<>();
 
-        constraintViolations.forEach(constraintViolation -> {
-            violations.add(new Violation(
-                    constraintViolation.getMessage(),
-                    constraintViolation.getInvalidValue()
-            ));
-        });
+        constraintViolations.forEach(constraintViolation -> violations.add(new Violation(
+                constraintViolation.getMessage(),
+                constraintViolation.getInvalidValue()
+        )));
 
         return new ValidationErrorResponse(violations);
     }

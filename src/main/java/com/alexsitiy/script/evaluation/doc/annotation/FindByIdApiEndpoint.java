@@ -5,6 +5,7 @@ import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,10 +26,19 @@ import static java.lang.annotation.ElementType.METHOD;
         @ApiResponse(
                 responseCode = "200",
                 description = "OK",
+                headers = {
+                        @Header(name = "Last-Modified", description = "It's used to validate cache"),
+                        @Header(name = "Cache-Control: no-cache", description = "It's used for caching"),
+                },
                 content = @Content(
                         mediaType = "application/hal+json",
                         schema = @Schema(implementation = ScriptReadDto.class)
                 )
+        ),
+        @ApiResponse(
+                responseCode = "304",
+                description = "Not Modified",
+                content = @Content(schema = @Schema(hidden = true))
         ),
         @ApiResponse(
                 responseCode = "404",

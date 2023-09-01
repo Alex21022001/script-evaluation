@@ -1,5 +1,5 @@
 /**
- *  Includes classes and interface which are used for converting
- *  Model to DTo and vice versa.
+ *  Includes class that is used for converting
+ *  Model to DTO.
  * */
 package com.alexsitiy.script.evaluation.mapper;

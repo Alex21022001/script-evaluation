@@ -7,14 +7,20 @@ import com.alexsitiy.script.evaluation.model.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
+/**
+ * This class is a mapper that extends {@link RepresentationModelAssemblerSupport} and
+ * converts {@link Script} to {@link ScriptReadDto}
+ * also adds HATEOAS links to it.
+ *
+ * @see EntityLinks
+ * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
+ */
 @Component
 public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script, ScriptReadDto> {
 
@@ -42,13 +48,22 @@ public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script
         return createModelWithId(entity.getId(), entity);
     }
 
+    /**
+     * Creates HATEOAS links to related resources. Utilizes toModel() method
+     * to create an instance of {@link ScriptReadDto} and add a self link.
+     *
+     * @param entity {@link Script} that will be mapped to {@link ScriptReadDto} and complemented with HATEOAS links.
+     * @return {@link ScriptReadDto} with links.
+     * @see EntityLinks
+     * @see WebMvcLinkBuilder
+     */
     public ScriptReadDto toModelWithAllLinks(Script entity) {
         return toModel(entity)
-                .add(linkTo(methodOn(CONTROLLER_CLASS)
-                        .getBody(entity.getId(), null)).withSelfRel().withDeprecation("Gets the body of the script"))
-                .add(linkTo(methodOn(CONTROLLER_CLASS)
-                        .getResult(entity.getId(), null)).withSelfRel().withDeprecation("Gets the result of the running script"))
-                .add(linkTo(methodOn(CONTROLLER_CLASS)
+                .add(entityLinks.linkForItemResource(MODEL_CLASS, entity.getId())
+                        .slash("body").withSelfRel().withDeprecation("Gets the body of the script"))
+                .add(entityLinks.linkForItemResource(MODEL_CLASS, entity.getId())
+                        .slash("result").withSelfRel().withDeprecation("Gets the result of the script"))
+                .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CONTROLLER_CLASS)
                         .findAll(Set.of(Status.COMPLETED, Status.EXECUTING), List.of("TIME", "scheduled"))).withRel("allScripts"))
                 .add(entityLinks.linkToItemResource(MODEL_CLASS, entity.getId())
                         .withRel("stop").withType("POST").withDeprecation("Terminates the running script"))
@@ -56,10 +71,21 @@ public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script
                         .withRel("delete").withType("DELETE").withDeprecation("Deletes a finished script"));
     }
 
+    /**
+     * Gets a self Link as a string.
+     *
+     * @param id id to a specific resource.
+     * @return {@link String} - representation of Link.
+     */
     public String getSelfLink(Integer id) {
         return entityLinks.linkToItemResource(MODEL_CLASS, id).toString();
     }
 
+    /**
+     * Gets a Link to resources as a string.
+     *
+     * @return {@link String} - representation of Link.
+     */
     public String getAllScriptsLink() {
         return entityLinks.linkToCollectionResource(CONTROLLER_CLASS).withRel("allScripts").toString();
     }

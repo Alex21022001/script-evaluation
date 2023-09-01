@@ -31,7 +31,7 @@ import static java.lang.annotation.ElementType.METHOD;
                                 It's used for sorting. If the value is specified in lowercase than ASC sort will be use, uppercase - otherwise.
                                 - id - sorts by script's id
                                 - time - sorts by script's execution time
-                                - scheduled - sorts by script's scheduled time                         
+                                - scheduled - sorts by script's scheduled time\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040\040
                                 """,
                         schema = @Schema(type = "array", allowableValues = {"id,ID,time,TIME,scheduled,SCHEDULED"}),
                         examples = {

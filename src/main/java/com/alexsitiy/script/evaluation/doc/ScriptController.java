@@ -17,6 +17,7 @@ import java.util.Set;
  * declarative way.
  */
 @Tag(name = "Script controller", description = "Contains endpoints for manipulating scripts")
+@SuppressWarnings({"unused", "rawtypes"})
 public interface ScriptController {
 
     @FindAllApiEndpoint
@@ -32,8 +33,8 @@ public interface ScriptController {
     ResponseEntity<String> getResult(Integer id, WebRequest request);
 
     @StopApiEndpoint
-    ResponseEntity<?> stop(Integer id);
+    ResponseEntity stop(Integer id);
 
     @DeleteApiEndpoint
-    ResponseEntity<?> delete(Integer id);
+    ResponseEntity delete(Integer id);
 }

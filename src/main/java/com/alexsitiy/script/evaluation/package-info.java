@@ -1,5 +1,5 @@
 /**
- * Provide classes for evaluating js script,
+ * Provides classes for evaluating js script,
  * obtaining current information about a specific script or all of them,
  * terminating executing scripts and deleting them.
  *

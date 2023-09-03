@@ -11,3 +11,13 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        "[http.server.request]": true
+

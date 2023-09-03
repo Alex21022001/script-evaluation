@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @see com.alexsitiy.script.evaluation.model.Script
  */
 @Service
-public final class ScriptExecutionService {
+public class ScriptExecutionService {
 
     private final ScriptService scriptService;
     private final TaskExecutor taskExecutor;
@@ -41,7 +41,6 @@ public final class ScriptExecutionService {
      * all the necessary information about it.
      * @throws CapacityViolationException if there is no free place in the thread pool.
      */
-
     public Script evaluate(String jsCode) {
         Script script = new Script(jsCode);
 

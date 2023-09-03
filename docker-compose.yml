@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  app:
+    build: ./
+    container_name: script-eval
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"

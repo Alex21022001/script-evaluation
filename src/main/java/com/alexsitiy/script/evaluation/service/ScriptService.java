@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -17,7 +20,7 @@ import java.util.function.Predicate;
  * It also includes caching via {@link ConcurrentHashMap} for {@link Comparator} that is used for soring scripts.
  */
 @Service
-public final class ScriptService {
+public class ScriptService {
 
     private static final Logger log = LoggerFactory.getLogger(ScriptService.class);
 

@@ -6,9 +6,8 @@ import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
-import com.alexsitiy.script.evaluation.service.ScriptService;
 import com.alexsitiy.script.evaluation.repository.ScriptRepository;
-import com.alexsitiy.script.evaluation.validation.CheckScript;
+import com.alexsitiy.script.evaluation.service.ScriptService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -200,8 +199,8 @@ public class ScriptRestController implements ScriptController {
 
     /**
      * Sends a given JavaScript to evaluation, but before validating it via
-     * {@link CheckScript} that utilizes {@link com.alexsitiy.script.evaluation.validation.ScriptValidator}
-     * as a validator. Returns {@link ScriptReadDto} that includes HATEOAS links
+     * {@link NotBlank}.
+     * Returns {@link ScriptReadDto} that includes HATEOAS links
      * to related resources.
      *
      * @param jsCode JavaScript code that need to be evaluated.
@@ -213,7 +212,6 @@ public class ScriptRestController implements ScriptController {
     @PostMapping
     @EvaluateApiEndpoint
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
-                                                  @CheckScript
                                                   @RequestBody String jsCode) {
         Script script = scriptService.evaluate(jsCode);
 

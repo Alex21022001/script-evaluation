@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.model;
 
+import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Engine;
@@ -53,50 +54,6 @@ public final class Script implements Runnable {
     }
 
     /**
-     * Creates an instance of {@link Context} that will be used to
-     * run JavaCode.
-     * <br/>
-     * It also includes {@link SandboxPolicy} as a CONSTRAINED in order to restrict
-     * the running JavaScript code and make the app more independent.
-     * <br/>
-     * It utilizes {@link CyclicByteArrayOutputStream} as a stdout and stderr that
-     * ensures max capacity in order to alleviate the load on the heap.
-     */
-    private Context createContext() {
-        return Context.newBuilder("js")
-                .engine(Engine.newBuilder("js")
-                        .option("engine.WarnInterpreterOnly", "false")
-                        .sandbox(SandboxPolicy.CONSTRAINED)
-                        .out(result)
-                        .err(result)
-                        .build())
-                .build();
-    }
-
-    /**
-     * Terminates JavaScript code from executing or deletes it from
-     * the thread pool's queue to release resources. Utilizes {@link CompletableFuture} to
-     * do it.
-     * <br/>
-     * It also changes the script's status to INTERRUPTED and writes to stderr if
-     * the task was deleted from the queue.
-     */
-    public void stop() {
-        if (task != null && !task.isDone()) {
-            task.cancel(true);
-            context.close(true);
-
-            if (this.status.get() == Status.IN_QUEUE) {
-                this.status.set(Status.INTERRUPTED);
-                this.lastModified = Instant.now().toEpochMilli();
-                this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
-                releaseResources();
-                log.debug("Script {} was deleted from the queue", this);
-            }
-        }
-    }
-
-    /**
      * Runs a given JavaScript code via {@link Context} and changes
      * script's status, executionTime, lastModified fields during execution.
      */
@@ -136,6 +93,64 @@ public final class Script implements Runnable {
             this.context.close();
             releaseResources();
         }
+    }
+
+    /**
+     * Checks the given JavaScript on syntax errors and throws {@link ScriptNotValidException} if any.
+     *
+     * @throws ScriptNotValidException if a given JavaScript has syntax errors.
+     */
+    public void checkSyntaxErrors() {
+        try {
+            this.context.parse("js", this.body);
+        } catch (PolyglotException e) {
+            throw new ScriptNotValidException("The script has some syntax errors");
+        }
+    }
+
+    /**
+     * Terminates JavaScript code from executing or deletes it from
+     * the thread pool's queue to release resources. Utilizes {@link CompletableFuture} to
+     * do it.
+     * <br/>
+     * It also changes the script's status to INTERRUPTED and writes to stderr if
+     * the task was deleted from the queue.
+     */
+    public void stop() {
+        if (task != null && !task.isDone()) {
+            task.cancel(true);
+            context.close(true);
+
+            if (this.status.get() == Status.IN_QUEUE) {
+                this.status.set(Status.INTERRUPTED);
+                this.lastModified = Instant.now().toEpochMilli();
+                this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
+                releaseResources();
+                log.debug("Script {} was deleted from the queue", this);
+            }
+        }
+    }
+
+
+    /**
+     * Creates an instance of {@link Context} that will be used to
+     * run JavaCode.
+     * <br/>
+     * It also includes {@link SandboxPolicy} as a CONSTRAINED in order to restrict
+     * the running JavaScript code and make the app more independent.
+     * <br/>
+     * It utilizes {@link CyclicByteArrayOutputStream} as a stdout and stderr that
+     * ensures max capacity in order to alleviate the load on the heap.
+     */
+    private Context createContext() {
+        return Context.newBuilder("js")
+                .engine(Engine.newBuilder("js")
+                        .option("engine.WarnInterpreterOnly", "false")
+                        .sandbox(SandboxPolicy.CONSTRAINED)
+                        .out(result)
+                        .err(result)
+                        .build())
+                .build();
     }
 
     private void releaseResources() {

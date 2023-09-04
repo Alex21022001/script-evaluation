@@ -54,27 +54,30 @@ public class ScriptService {
 
 
     /**
-     * Runs a given JavaScript code in a separate Thread to evaluate the script.
+     * Runs a given JavaScript code in a separate Thread to evaluate the script,
+     * but before it check for syntax errors.
      * It also saves the script in the storage via {@link ScriptRepository}
      *
      * @param jsCode JavaScript code passed for evaluation.
      * @return {@link Script} as a representation of JavaScript code that holds
      * all the necessary information about it.
-     * @throws CapacityViolationException if there is no free place in the thread pool.
+     * @throws com.alexsitiy.script.evaluation.exception.ScriptNotValidException if JavaScript has syntax errors.
+     * @throws CapacityViolationException                                        if there is no free place in the thread pool.
      */
     public Script evaluate(String jsCode) {
-        Script script = new Script(jsCode);
-
         try {
+            Script script = new Script(jsCode);
+            script.checkSyntaxErrors();
+
             CompletableFuture<Void> task = CompletableFuture
                     .runAsync(script, taskExecutor);
             script.setTask(task);
             scriptRepository.save(script);
+
+            return script;
         } catch (TaskRejectedException e) {
             throw new CapacityViolationException("There is no free space in the pool");
         }
-
-        return script;
     }
 
     /**
@@ -90,7 +93,7 @@ public class ScriptService {
 
     /**
      * Delegates method to {@link ScriptService}
-     * */
+     */
     public void delete(Integer id) {
         scriptRepository.delete(id);
     }

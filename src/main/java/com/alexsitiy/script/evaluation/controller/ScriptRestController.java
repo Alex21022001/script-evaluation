@@ -6,8 +6,8 @@ import com.alexsitiy.script.evaluation.dto.ScriptReadDto;
 import com.alexsitiy.script.evaluation.mapper.ScriptReadMapper;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
-import com.alexsitiy.script.evaluation.service.ScriptExecutionService;
 import com.alexsitiy.script.evaluation.service.ScriptService;
+import com.alexsitiy.script.evaluation.repository.ScriptRepository;
 import com.alexsitiy.script.evaluation.validation.CheckScript;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +50,8 @@ import java.util.Set;
  * It also includes Swagger descriptions that is useful for testing the API.
  *
  * @see com.alexsitiy.script.evaluation.model.Script
+ * @see ScriptRepository
  * @see ScriptService
- * @see ScriptExecutionService
  * @see ScriptReadDto
  */
 @RestController
@@ -60,17 +60,13 @@ import java.util.Set;
 @Validated
 public class ScriptRestController implements ScriptController {
 
-    private final ScriptExecutionService scriptExecutionService;
     private final ScriptService scriptService;
-
     private final ScriptReadMapper scriptReadMapper;
 
 
     @Autowired
-    public ScriptRestController(ScriptExecutionService scriptExecutionService,
-                                ScriptService scriptService,
+    public ScriptRestController(ScriptService scriptService,
                                 ScriptReadMapper scriptReadMapper) {
-        this.scriptExecutionService = scriptExecutionService;
         this.scriptService = scriptService;
         this.scriptReadMapper = scriptReadMapper;
     }
@@ -101,7 +97,7 @@ public class ScriptRestController implements ScriptController {
      * @param sorts    List of String that is used for sorting scripts.
      * @return {@link CollectionModel} that is used for HATEOAS representation of the collection,
      * it comprises {@link ScriptReadDto}. Also returns 200(OK) status code.
-     * @see ScriptService
+     * @see ScriptRepository
      */
     @GetMapping
     public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite
@@ -124,7 +120,7 @@ public class ScriptRestController implements ScriptController {
      * @param request it's used for cache validation, setting Last-Modified header and returning 304(NOT-MODIFIED)
      *                status if cache is valid.
      * @return {@link ScriptReadDto} with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
-     * @see ScriptService
+     * @see ScriptRepository
      */
     @GetMapping("/{id}")
     public ResponseEntity<ScriptReadDto> findById(@PathVariable Integer id,
@@ -151,7 +147,7 @@ public class ScriptRestController implements ScriptController {
      * @param request it's used for cache validation, setting ETag header and returning 304(NOT-MODIFIED)
      *                status if cache is valid.
      * @return {@link String} that is representation of the script's body with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
-     * @see ScriptService
+     * @see ScriptRepository
      */
     @GetMapping(value = "/{id}/body", produces = {"text/plain"})
     public ResponseEntity<String> getBody(@PathVariable Integer id, WebRequest request) {
@@ -178,7 +174,7 @@ public class ScriptRestController implements ScriptController {
      * @param request it's used for cache validation, setting ETag header and returning 304(NOT-MODIFIED)
      *                status if cache is valid.
      * @return {@link String} that is representation of the script's result with 200(OK) or 304(NOT_MODIFIED) if cache is valid.
-     * @see ScriptService
+     * @see ScriptRepository
      */
     @GetMapping(value = "/{id}/result", produces = {"text/plain"})
     public ResponseEntity<String> getResult(@PathVariable Integer id, WebRequest request) {
@@ -211,7 +207,7 @@ public class ScriptRestController implements ScriptController {
      * @param jsCode JavaScript code that need to be evaluated.
      * @return {@link ScriptReadDto} - that is a representation with HATEOAS links.
      * It also returns 202(ACCEPTED) status code.
-     * @see ScriptExecutionService
+     * @see ScriptService
      * @see ScriptReadMapper
      */
     @PostMapping
@@ -219,7 +215,7 @@ public class ScriptRestController implements ScriptController {
     public ResponseEntity<ScriptReadDto> evaluate(@NotBlank
                                                   @CheckScript
                                                   @RequestBody String jsCode) {
-        Script script = scriptExecutionService.evaluate(jsCode);
+        Script script = scriptService.evaluate(jsCode);
 
         return ResponseEntity
                 .status(202)
@@ -233,12 +229,12 @@ public class ScriptRestController implements ScriptController {
      * @param id running script's id.
      * @return 204(NO_CONTENT).
      * @see com.alexsitiy.script.evaluation.model.Script
-     * @see ScriptExecutionService
+     * @see ScriptService
      * @see ScriptReadMapper
      */
     @PostMapping("/{id}")
     public ResponseEntity<?> stop(@PathVariable Integer id) {
-        scriptExecutionService.stopById(id);
+        scriptService.stopById(id);
 
         return ResponseEntity
                 .noContent()
@@ -252,7 +248,7 @@ public class ScriptRestController implements ScriptController {
      * @param id running script's id.
      * @return 204(NO_CONTENT).
      * @see com.alexsitiy.script.evaluation.model.Script
-     * @see ScriptService
+     * @see ScriptRepository
      * @see ScriptReadMapper
      */
     @DeleteMapping("/{id}")

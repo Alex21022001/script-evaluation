@@ -3,6 +3,8 @@ package com.alexsitiy.script.evaluation.service;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,12 @@ public class ScriptService {
     private final Map<List<String>, Comparator<Script>> sortCache = new ConcurrentHashMap<>();
 
 
+    public ScriptService(MeterRegistry meterRegistry) {
+        meterRegistry.gauge("sort.cache.items", sortCache, Map::size);
+        meterRegistry.gauge("script.items", scripts, Map::size);
+    }
+
+
     /**
      * Finds all {@link Script} according to passing
      * statuses (filter) and sorts (sort) and return them in the {@link List}.
@@ -36,6 +44,7 @@ public class ScriptService {
      * @param sorts    is used for soring scripts.
      * @return {@link List<Script>} - the list of the found scripts.
      */
+    @Timed("script.findAll")
     public List<Script> findAll(Set<Status> statuses, List<String> sorts) {
         return scripts.values().stream()
                 .filter(filteredBy(statuses))
@@ -51,6 +60,7 @@ public class ScriptService {
      * @return {@link Script} - found script.
      * @throws NoSuchScriptException if the script with a given id was not found.
      */
+    @Timed("script.findById")
     public Script findById(Integer id) {
         Script script = scripts.get(id);
 

@@ -100,6 +100,7 @@ public final class Script implements Runnable {
      * Runs a given JavaScript code via {@link Context} and changes
      * script's status, executionTime, lastModified fields during execution.
      */
+
     @Override
     public void run() {
         long start = 0;

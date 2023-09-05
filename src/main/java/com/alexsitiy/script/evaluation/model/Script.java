@@ -2,16 +2,13 @@ package com.alexsitiy.script.evaluation.model;
 
 import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.Engine;
-import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.SandboxPolicy;
+import org.graalvm.polyglot.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,6 +34,7 @@ public final class Script implements Runnable {
     private final CyclicByteArrayOutputStream result;
 
     private CompletableFuture<Void> task;
+    private Value parsedCode;
     private Context context;
 
     /**
@@ -45,19 +43,40 @@ public final class Script implements Runnable {
      *
      * @param body the JavaScript code that is needed to be executed.
      */
-    public Script(String body) {
+    private Script(String body, CyclicByteArrayOutputStream result, Context context, Value parsedCode) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
-        this.result = new CyclicByteArrayOutputStream(2048);
-        this.context = createContext();
+        this.result = result;
+        this.parsedCode = parsedCode;
+        this.context = context;
+    }
+
+    /**
+     * Creates an instance of {@link Script}, but validates the given JavaScript code
+     * before.
+     *
+     * @param jsCode JavaScript that will be evaluated.
+     * @return {@link Script}
+     * @throws ScriptNotValidException if the given JavaScript code has some syntax errors and can't be executed.
+     */
+    public static Script create(String jsCode) {
+        try {
+            CyclicByteArrayOutputStream result = new CyclicByteArrayOutputStream(2048);
+            Context context = createContext(result);
+
+            Value parsed = context.parse("js", jsCode);
+
+            return new Script(jsCode, result, context, parsed);
+        } catch (PolyglotException e) {
+            throw new ScriptNotValidException("The script has some syntax errors");
+        }
     }
 
     /**
      * Runs a given JavaScript code via {@link Context} and changes
      * script's status, executionTime, lastModified fields during execution.
      */
-
     @Override
     public void run() {
         long start = 0;
@@ -69,7 +88,7 @@ public final class Script implements Runnable {
             this.lastModified = Instant.now().toEpochMilli();
 
             start = System.currentTimeMillis();
-            context.eval("js", this.body);
+            this.parsedCode.executeVoid();
             this.executionTime = System.currentTimeMillis() - start;
 
             this.status.set(Status.COMPLETED);
@@ -90,23 +109,10 @@ public final class Script implements Runnable {
             }
             this.result.write(("Error: " + ExceptionUtils.getStackTrace(e)).getBytes(StandardCharsets.UTF_8));
         } finally {
-            this.context.close();
             releaseResources();
         }
     }
 
-    /**
-     * Checks the given JavaScript on syntax errors and throws {@link ScriptNotValidException} if any.
-     *
-     * @throws ScriptNotValidException if a given JavaScript has syntax errors.
-     */
-    public void checkSyntaxErrors() {
-        try {
-            this.context.parse("js", this.body);
-        } catch (PolyglotException e) {
-            throw new ScriptNotValidException("The script has some syntax errors");
-        }
-    }
 
     /**
      * Terminates JavaScript code from executing or deletes it from
@@ -142,7 +148,7 @@ public final class Script implements Runnable {
      * It utilizes {@link CyclicByteArrayOutputStream} as a stdout and stderr that
      * ensures max capacity in order to alleviate the load on the heap.
      */
-    private Context createContext() {
+    private static Context createContext(OutputStream result) {
         return Context.newBuilder("js")
                 .engine(Engine.newBuilder("js")
                         .option("engine.WarnInterpreterOnly", "false")
@@ -154,8 +160,9 @@ public final class Script implements Runnable {
     }
 
     private void releaseResources() {
-        this.context = null;
+        this.parsedCode = null;
         this.task = null;
+        this.context = null;
     }
 
     public Instant getScheduledTime() {
@@ -200,32 +207,4 @@ public final class Script implements Runnable {
                '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Script script = (Script) o;
-
-        if (executionTime != script.executionTime) return false;
-        if (!Objects.equals(id, script.id)) return false;
-        if (status != script.status) return false;
-        if (!Objects.equals(scheduledTime, script.scheduledTime))
-            return false;
-        if (!Objects.equals(body, script.body)) return false;
-        if (!Objects.equals(result, script.result)) return false;
-        return Objects.equals(context, script.context);
-    }
-
-    @Override
-    public int hashCode() {
-        int result1 = id != null ? id.hashCode() : 0;
-        result1 = 31 * result1 + (status != null ? status.hashCode() : 0);
-        result1 = 31 * result1 + (int) (executionTime ^ (executionTime >>> 32));
-        result1 = 31 * result1 + (scheduledTime != null ? scheduledTime.hashCode() : 0);
-        result1 = 31 * result1 + (body != null ? body.hashCode() : 0);
-        result1 = 31 * result1 + (result != null ? result.hashCode() : 0);
-        result1 = 31 * result1 + (context != null ? context.hashCode() : 0);
-        return result1;
-    }
 }

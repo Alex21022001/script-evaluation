@@ -2,6 +2,7 @@ package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.dto.ValidationErrorResponse;
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import jakarta.validation.ConstraintViolationException;
@@ -44,8 +45,8 @@ public class ScriptControllerAdvice {
      * @param e IllegalStateException that need to be solved.
      * @return {@linkplain ProblemDetail} - representation of the response with 405 status code.
      */
-    @ExceptionHandler(IllegalStateException.class)
-    public ProblemDetail handleIllegalStateException(IllegalStateException e) {
+    @ExceptionHandler(IllegalScriptStateException.class)
+    public ProblemDetail handleIllegalScriptStateException(IllegalScriptStateException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage());
         problemDetail.setTitle("Script is not finished yet");
 
@@ -69,13 +70,14 @@ public class ScriptControllerAdvice {
     public ProblemDetail handleScriptNotValidException(ScriptNotValidException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
+
     /**
      * Handles {@linkplain ConstraintViolationException} that can occur when
      * user's request didn't pass the validation. Returns 400(BAD_REQUEST).
      *
      * @param e ConstraintViolationException that need to be solved.
      * @return {@linkplain ValidationErrorResponse} - representation of the response with 400 status code.
-     * */
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         return ResponseEntity

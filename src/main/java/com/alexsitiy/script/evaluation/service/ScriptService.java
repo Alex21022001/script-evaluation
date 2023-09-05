@@ -55,20 +55,19 @@ public class ScriptService {
 
     /**
      * Runs a given JavaScript code in a separate Thread to evaluate the script,
-     * but before it check for syntax errors.
+     * but before it checks for syntax errors.
      * It also saves the script in the storage via {@link ScriptRepository}
      *
      * @param jsCode JavaScript code passed for evaluation.
      * @return {@link Script} as a representation of JavaScript code that holds
      * all the necessary information about it.
-     * @throws com.alexsitiy.script.evaluation.exception.ScriptNotValidException if JavaScript has syntax errors.
-     * @throws CapacityViolationException                                        if there is no free place in the thread pool.
+     * @throws CapacityViolationException if there is no free place in the thread pool.
      */
     public Script evaluate(String jsCode) {
         try {
-            Script script = new Script(jsCode);
-            script.checkSyntaxErrors();
+            Script script = Script.create(jsCode);
 
+            // TODO: 05.09.2023 Add FutureTask inside the Script and return it by get method
             CompletableFuture<Void> task = CompletableFuture
                     .runAsync(script, taskExecutor);
             script.setTask(task);

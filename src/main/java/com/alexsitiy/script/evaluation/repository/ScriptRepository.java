@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.repository;
 
+import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
@@ -90,7 +91,7 @@ public final class ScriptRepository {
             scripts.remove(id, script);
             log.debug("Script {} was deleted", script);
         } else {
-            throw new IllegalStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
+            throw new IllegalScriptStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
         }
     }
 

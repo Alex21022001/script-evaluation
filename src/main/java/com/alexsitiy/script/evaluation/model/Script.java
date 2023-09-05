@@ -1,5 +1,6 @@
 package com.alexsitiy.script.evaluation.model;
 
+import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.graalvm.polyglot.*;
@@ -8,7 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,13 +30,14 @@ public final class Script {
 
     private final Integer id;
     private final AtomicReference<Status> status;
-    private volatile long executionTime;
-    private volatile long lastModified;
+    private volatile Duration executionTime;
+    private volatile Instant lastModified;
     private volatile Instant scheduledTime;
     private final String body;
     private final CyclicByteArrayOutputStream result;
 
     private Value parsedCode;
+    private Context context;
     private FutureTask<Void> task;
 
     /**
@@ -42,12 +46,15 @@ public final class Script {
      *
      * @param body the JavaScript code that is needed to be executed.
      */
-    private Script(String body, CyclicByteArrayOutputStream result, Value parsedCode) {
+    private Script(String body, CyclicByteArrayOutputStream result, Value parsedCode, Context context) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
+        this.executionTime = Duration.ZERO;
+        this.lastModified = Instant.now();
         this.body = body;
         this.result = result;
         this.parsedCode = parsedCode;
+        this.context = context;
         this.task = new FutureTask<>(this::run, null);
     }
 
@@ -66,14 +73,14 @@ public final class Script {
 
             Value parsed = context.parse("js", jsCode);
 
-            return new Script(jsCode, result, parsed);
+            return new Script(jsCode, result, parsed, context);
         } catch (PolyglotException e) {
             throw new ScriptNotValidException("The script has some syntax errors");
         }
     }
 
     /**
-     * Runs a given JavaScript code via {@link Context} and changes
+     * Runs a given JavaScript code via {@link Value} and changes
      * script's status, executionTime, lastModified fields during execution.
      */
     public void run() {
@@ -81,27 +88,24 @@ public final class Script {
 
         try {
             log.debug("Script {} is started", this);
-            this.status.set(Status.EXECUTING);
+            setStatus(Status.IN_QUEUE, Status.EXECUTING);
             this.scheduledTime = Instant.now();
-            this.lastModified = Instant.now().toEpochMilli();
 
             start = System.currentTimeMillis();
             this.parsedCode.executeVoid();
-            this.executionTime = System.currentTimeMillis() - start;
+            setExecutionTime(System.currentTimeMillis() - start);
 
-            this.status.set(Status.COMPLETED);
-            this.lastModified = Instant.now().toEpochMilli();
+            setStatus(Status.EXECUTING, Status.COMPLETED);
             log.debug("Script {} is completed successfully", this);
         } catch (PolyglotException e) {
-            this.executionTime = System.currentTimeMillis() - start;
-            this.lastModified = Instant.now().toEpochMilli();
+            setExecutionTime(System.currentTimeMillis() - start);
 
             if (e.isGuestException()) {
                 if (e.isInterrupted() || e.isCancelled()) {
-                    this.status.set(Status.INTERRUPTED);
+                    setStatus(Status.EXECUTING, Status.INTERRUPTED);
                     log.debug("Script {} was interrupted", this);
                 } else {
-                    this.status.set(Status.FAILED);
+                    setStatus(Status.EXECUTING, Status.FAILED);
                     log.debug("Script {} is failed", this);
                 }
             }
@@ -123,10 +127,10 @@ public final class Script {
     public void stop() {
         if (task != null && !task.isDone() && !task.isCancelled()) {
             task.cancel(true);
+            context.close(true);
 
-            if (this.status.get() == Status.IN_QUEUE) {
-                this.status.set(Status.INTERRUPTED);
-                this.lastModified = Instant.now().toEpochMilli();
+            if (this.status.compareAndSet(Status.IN_QUEUE, Status.INTERRUPTED)) {
+                this.lastModified = Instant.now();
                 this.result.write("Error: Script was deleted from the queue without execution".getBytes(StandardCharsets.UTF_8));
                 releaseResources();
                 log.debug("Script {} was deleted from the queue", this);
@@ -156,9 +160,24 @@ public final class Script {
                 .build();
     }
 
+    private void setStatus(Status expected, Status newStatus) {
+        boolean success = this.status.compareAndSet(expected, newStatus);
+
+        if (!success)
+            throw new IllegalScriptStateException("Expected status [%s] is not equal to the provided [%s]"
+                    .formatted(expected.name(), newStatus.name()));
+
+        this.lastModified = Instant.now();
+    }
+
     private void releaseResources() {
         this.parsedCode = null;
+        this.context = null;
         this.task = null;
+    }
+
+    private void setExecutionTime(long millis) {
+        this.executionTime = Duration.of(millis, ChronoUnit.MILLIS);
     }
 
     public Runnable getTaskToBeRun() {
@@ -178,7 +197,7 @@ public final class Script {
     }
 
     public long getExecutionTime() {
-        return executionTime;
+        return executionTime.toMillis();
     }
 
     public String getBody() {
@@ -190,7 +209,7 @@ public final class Script {
     }
 
 
-    public long getLastModified() {
+    public Instant getLastModified() {
         return lastModified;
     }
 
@@ -199,7 +218,7 @@ public final class Script {
         return "Script{" +
                "id=" + id +
                ", status=" + status +
-               ", executionTime=" + executionTime +
+               ", executionTime=" + this.getExecutionTime() +
                '}';
     }
 

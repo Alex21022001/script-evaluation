@@ -126,7 +126,7 @@ public class ScriptRestController implements ScriptController {
                                                   WebRequest request) {
         Script script = scriptService.findById(id);
 
-        if (request.checkNotModified(script.getLastModified()))
+        if (request.checkNotModified(script.getLastModified().toEpochMilli()))
             return null;
 
         return ResponseEntity
@@ -181,7 +181,7 @@ public class ScriptRestController implements ScriptController {
 
         String selfLink = scriptReadMapper.getSelfLink(id);
         if (Status.isFinished(script.getStatus())) {
-            if (request.checkNotModified(script.getLastModified()))
+            if (request.checkNotModified(script.getLastModified().toEpochMilli()))
                 return null;
 
             return ResponseEntity

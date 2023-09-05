@@ -11,9 +11,11 @@ import com.alexsitiy.script.evaluation.service.ScriptService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.NonComposite;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.ExposesResourceFor;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -99,12 +101,19 @@ public class ScriptRestController implements ScriptController {
      * @see ScriptRepository
      */
     @GetMapping
-    public ResponseEntity<CollectionModel<ScriptReadDto>> findAll(@NonComposite
-                                                                  @RequestParam(value = "statuses", required = false) Set<Status> statuses,
-                                                                  @NonComposite
-                                                                  @RequestParam(value = "sorts", required = false) List<String> sorts) {
+    public CollectionModel<ScriptReadDto> findAll(@NonComposite
+                                                  @RequestParam(value = "statuses", required = false) Set<Status> statuses,
+                                                  @NonComposite
+                                                  @RequestParam(value = "sorts", required = false) List<String> sorts) {
 
-        return ResponseEntity.ok(scriptReadMapper.toCollectionModel(scriptService.findAll(statuses, sorts)));
+        List<ScriptReadDto> scriptReadDtoList = scriptService.findAll(statuses, sorts).stream()
+                .map(scriptReadMapper::toModel)
+                .toList();
+
+        Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ScriptRestController.class)
+                .evaluate(null)).withRel("evaluate").withType("POST");
+
+        return CollectionModel.of(scriptReadDtoList, link);
     }
 
     /**

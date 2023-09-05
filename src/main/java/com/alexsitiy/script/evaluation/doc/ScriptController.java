@@ -21,7 +21,7 @@ import java.util.Set;
 public interface ScriptController {
 
     @FindAllApiEndpoint
-    ResponseEntity<CollectionModel<ScriptReadDto>> findAll(Set<Status> statuses, List<String> sorts);
+    CollectionModel<ScriptReadDto> findAll(Set<Status> statuses, List<String> sorts);
 
     @FindByIdApiEndpoint
     ResponseEntity<ScriptReadDto> findById(Integer id, WebRequest request);

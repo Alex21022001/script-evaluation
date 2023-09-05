@@ -1,6 +1,5 @@
 package com.alexsitiy.script.evaluation.model;
 
-import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.graalvm.polyglot.*;
@@ -164,7 +163,7 @@ public final class Script {
         boolean success = this.status.compareAndSet(expected, newStatus);
 
         if (!success)
-            throw new IllegalScriptStateException("Expected status [%s] is not equal to the provided [%s]"
+            throw new IllegalStateException("Expected status [%s] is not equal to the provided [%s]"
                     .formatted(expected.name(), newStatus.name()));
 
         this.lastModified = Instant.now();

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <br/>
  * It utilizes {@link Context} for running JavaScript code.
  */
-public final class Script implements Runnable {
+public final class Script {
 
     private static final Logger log = LoggerFactory.getLogger(Script.class);
     private static final AtomicInteger idGenerator = new AtomicInteger();
@@ -33,9 +33,8 @@ public final class Script implements Runnable {
     private final String body;
     private final CyclicByteArrayOutputStream result;
 
-    private CompletableFuture<Void> task;
     private Value parsedCode;
-    private Context context;
+    private FutureTask<Void> task;
 
     /**
      * Creates an instance of {@link Script} with generated id. It also
@@ -43,13 +42,13 @@ public final class Script implements Runnable {
      *
      * @param body the JavaScript code that is needed to be executed.
      */
-    private Script(String body, CyclicByteArrayOutputStream result, Context context, Value parsedCode) {
+    private Script(String body, CyclicByteArrayOutputStream result, Value parsedCode) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.body = body;
         this.result = result;
         this.parsedCode = parsedCode;
-        this.context = context;
+        this.task = new FutureTask<>(this::run, null);
     }
 
     /**
@@ -67,7 +66,7 @@ public final class Script implements Runnable {
 
             Value parsed = context.parse("js", jsCode);
 
-            return new Script(jsCode, result, context, parsed);
+            return new Script(jsCode, result, parsed);
         } catch (PolyglotException e) {
             throw new ScriptNotValidException("The script has some syntax errors");
         }
@@ -77,7 +76,6 @@ public final class Script implements Runnable {
      * Runs a given JavaScript code via {@link Context} and changes
      * script's status, executionTime, lastModified fields during execution.
      */
-    @Override
     public void run() {
         long start = 0;
 
@@ -116,16 +114,15 @@ public final class Script implements Runnable {
 
     /**
      * Terminates JavaScript code from executing or deletes it from
-     * the thread pool's queue to release resources. Utilizes {@link CompletableFuture} to
+     * the thread pool's queue to release resources. Utilizes {@link FutureTask} to
      * do it.
      * <br/>
      * It also changes the script's status to INTERRUPTED and writes to stderr if
      * the task was deleted from the queue.
      */
     public void stop() {
-        if (task != null && !task.isDone()) {
+        if (task != null && !task.isDone() && !task.isCancelled()) {
             task.cancel(true);
-            context.close(true);
 
             if (this.status.get() == Status.IN_QUEUE) {
                 this.status.set(Status.INTERRUPTED);
@@ -162,15 +159,14 @@ public final class Script implements Runnable {
     private void releaseResources() {
         this.parsedCode = null;
         this.task = null;
-        this.context = null;
+    }
+
+    public Runnable getTaskToBeRun() {
+        return this.task;
     }
 
     public Instant getScheduledTime() {
         return scheduledTime;
-    }
-
-    public void setTask(CompletableFuture<Void> task) {
-        this.task = task;
     }
 
     public Integer getId() {

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * This class is used for running and stopping scripts.
@@ -67,12 +66,9 @@ public class ScriptService {
         try {
             Script script = Script.create(jsCode);
 
-            // TODO: 05.09.2023 Add FutureTask inside the Script and return it by get method
-            CompletableFuture<Void> task = CompletableFuture
-                    .runAsync(script, taskExecutor);
-            script.setTask(task);
-            scriptRepository.save(script);
+            taskExecutor.execute(script.getTaskToBeRun());
 
+            scriptRepository.save(script);
             return script;
         } catch (TaskRejectedException e) {
             throw new CapacityViolationException("There is no free space in the pool");

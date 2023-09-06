@@ -33,7 +33,7 @@ public final class Script {
     private volatile Instant lastModified;
     private volatile Instant scheduledTime;
     private final String body;
-    private final CyclicByteArrayOutputStream result;
+    private final CircularLineBuffer result;
 
     private Value parsedCode;
     private Context context;
@@ -45,7 +45,7 @@ public final class Script {
      *
      * @param body the JavaScript code that is needed to be executed.
      */
-    private Script(String body, CyclicByteArrayOutputStream result, Value parsedCode, Context context) {
+    private Script(String body, CircularLineBuffer result, Value parsedCode, Context context) {
         this.id = idGenerator.incrementAndGet();
         this.status = new AtomicReference<>(Status.IN_QUEUE);
         this.executionTime = Duration.ZERO;
@@ -67,7 +67,7 @@ public final class Script {
      */
     public static Script create(String jsCode) {
         try {
-            CyclicByteArrayOutputStream result = new CyclicByteArrayOutputStream(2048);
+            CircularLineBuffer result = new CircularLineBuffer(10, 100);
             Context context = createContext(result);
 
             Value parsed = context.parse("js", jsCode);
@@ -145,7 +145,7 @@ public final class Script {
      * It also includes {@link SandboxPolicy} as a CONSTRAINED in order to restrict
      * the running JavaScript code and make the app more independent.
      * <br/>
-     * It utilizes {@link CyclicByteArrayOutputStream} as a stdout and stderr that
+     * It utilizes {@link CircularLineBuffer} as a stdout and stderr that
      * ensures max capacity in order to alleviate the load on the heap.
      */
     private static Context createContext(OutputStream result) {

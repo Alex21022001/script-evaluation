@@ -1,6 +1,6 @@
 package com.alexsitiy.script.evaluation.controller;
 
-import com.alexsitiy.script.evaluation.controller.ScriptRestController;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +13,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 /**
  * Root controller that returns HATEOAS links instead of 404 error.
  */
+@Hidden
 @RestController
 @RequestMapping("/")
 @SuppressWarnings("rawtypes")

@@ -67,12 +67,12 @@ public final class Script {
      */
     public static Script create(String jsCode) {
         try {
-            CircularLineBuffer result = new CircularLineBuffer(10, 100);
-            Context context = createContext(result);
+            CircularLineBuffer outStream = new CircularLineBuffer(10, 100);
+            Context context = createContext(outStream);
 
             Value parsed = context.parse("js", jsCode);
 
-            return new Script(jsCode, result, parsed, context);
+            return new Script(jsCode, outStream, parsed, context);
         } catch (PolyglotException e) {
             throw new ScriptNotValidException("The script has some syntax errors");
         }

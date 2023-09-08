@@ -111,7 +111,7 @@ public class ScriptRestController implements ScriptController {
                 .toList();
 
         Link link = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(ScriptRestController.class)
-                .evaluate(null)).withRel("evaluate").withType("POST");
+                .evaluate(null)).withRel("evaluate").withType("POST").withTitle("Evaluates a given JavaScript code");
 
         return CollectionModel.of(scriptReadDtoList, link);
     }

@@ -6,7 +6,6 @@ import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
 import java.time.Instant;
-import java.util.Objects;
 
 /**
  * The representation of {@link com.alexsitiy.script.evaluation.model.Script}
@@ -33,7 +32,7 @@ import java.util.Objects;
         }
         """)
 @Relation(collectionRelation = "scripts", itemRelation = "script")
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 public class ScriptReadDto extends RepresentationModel<ScriptReadDto> {
     private final Integer id;
     private final Status status;

@@ -1,6 +1,5 @@
 package com.alexsitiy.script.evaluation.repository;
 
-import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
@@ -76,23 +75,13 @@ public final class ScriptRepository {
     }
 
     /**
-     * Delete the script by its id, but only if it has one of the
-     * next statuses: COMPLETED,FAILED,INTERRUPTED.
+     * Delete the script by its id.
      *
      * @param id the id of the script
-     * @throws IllegalStateException if the script did have appropriate status.
-     * @throws NoSuchScriptException if the script with a given id was not found.
-     * @see Status
      */
     public void delete(Integer id) {
-        Script script = findById(id);
-
-        if (Status.isFinished(script.getStatus())) {
-            scripts.remove(id, script);
-            log.debug("Script {} was deleted", script);
-        } else {
-            throw new IllegalScriptStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
-        }
+        scripts.remove(id);
+        log.debug("Script with id {} was deleted", id);
     }
 
     /**

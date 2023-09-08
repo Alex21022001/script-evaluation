@@ -60,15 +60,15 @@ public class ScriptReadMapper extends RepresentationModelAssemblerSupport<Script
     public ScriptReadDto toModelWithAllLinks(Script entity) {
         return toModel(entity)
                 .add(entityLinks.linkForItemResource(MODEL_CLASS, entity.getId())
-                        .slash("body").withSelfRel().withDeprecation("Gets the body of the script"))
+                        .slash("body").withSelfRel().withTitle("Gets the body of the script"))
                 .add(entityLinks.linkForItemResource(MODEL_CLASS, entity.getId())
-                        .slash("result").withSelfRel().withDeprecation("Gets the result of the script"))
+                        .slash("result").withSelfRel().withTitle("Gets the result of the script"))
                 .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CONTROLLER_CLASS)
                         .findAll(Set.of(Status.COMPLETED, Status.EXECUTING), List.of("TIME", "scheduled"))).withRel("allScripts"))
                 .add(entityLinks.linkToItemResource(MODEL_CLASS, entity.getId())
-                        .withRel("stop").withType("POST").withDeprecation("Terminates the running script"))
+                        .withRel("stop").withType("POST").withTitle("Terminates the running script"))
                 .add(entityLinks.linkToItemResource(MODEL_CLASS, entity.getId())
-                        .withRel("delete").withType("DELETE").withDeprecation("Deletes a finished script"));
+                        .withRel("delete").withType("DELETE").withTitle("Deletes a finished script"));
     }
 
     /**

@@ -22,13 +22,13 @@ public class RootController {
     @GetMapping
     public CollectionModel getRoot() {
         Link scriptsLink = linkTo(ScriptRestController.class)
-                .withRel("scripts").withDeprecation("Gets all scripts")
+                .withRel("scripts").withTitle("Gets all scripts")
                 .andAffordance(afford(methodOn(ScriptRestController.class).evaluate(null)));
 
         Link swaggerLink = Link.of(ServletUriComponentsBuilder.fromCurrentRequest()
                         .replacePath("/swagger-ui.html").toUriString())
                 .withRel("swagger")
-                .withDeprecation("Gets the Swagger documentation");
+                .withTitle("Gets the Swagger documentation");
 
         return CollectionModel.empty(scriptsLink, swaggerLink);
     }

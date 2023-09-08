@@ -1,6 +1,7 @@
 package com.alexsitiy.script.evaluation.service;
 
 import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
 import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
 import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
@@ -87,9 +88,19 @@ public class ScriptService {
     }
 
     /**
-     * Delegates method to {@link ScriptService}
+     * Delete the script by its id, but only if it has one of the
+     * next statuses: COMPLETED,FAILED,INTERRUPTED.
+     *
+     * @param id the id of the script
+     * @throws IllegalStateException if the script did have appropriate status.
+     * @see Status
      */
     public void delete(Integer id) {
+        Script script = scriptRepository.findById(id);
+
+        if (!Status.isFinished(script.getStatus()))
+            throw new IllegalScriptStateException("Couldn't delete the script with id:%d due to its inappropriate state".formatted(id));
+
         scriptRepository.delete(id);
     }
 

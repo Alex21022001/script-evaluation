@@ -63,29 +63,4 @@ public class ScriptReadDto extends RepresentationModel<ScriptReadDto> {
     public Instant getScheduledTime() {
         return scheduledTime;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        ScriptReadDto that = (ScriptReadDto) o;
-
-        if (!Objects.equals(id, that.id)) return false;
-        if (status != that.status) return false;
-        if (!Objects.equals(executionTime, that.executionTime))
-            return false;
-        return Objects.equals(scheduledTime, that.scheduledTime);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (executionTime != null ? executionTime.hashCode() : 0);
-        result = 31 * result + (scheduledTime != null ? scheduledTime.hashCode() : 0);
-        return result;
-    }
 }

@@ -24,6 +24,8 @@ services:
     environment:
       - "GF_SECURITY_ADMIN_USER=admin"
       - "GF_SECURITY_ADMIN_PASSWORD=admin"
+      - "GF_SERVER_SERVE_FROM_SUB_PATH=true"
+      - "GF_SERVER_ROOT_URL=http://localhost:8080/grafana/"
 
   nginx:
     image: nginx
@@ -35,7 +37,5 @@ services:
       - grafana
     ports:
       - "8080:8080"
-      - "8081:8081"
-      - "8082:8082"
     volumes:
       - "./config/nginx.conf:/etc/nginx/nginx.conf"

@@ -26,9 +26,10 @@ public class RootController {
                 .andAffordance(afford(methodOn(ScriptRestController.class).evaluate(null)));
 
         Link swaggerLink = Link.of(ServletUriComponentsBuilder.fromCurrentRequest()
-                        .replacePath("/swagger-ui.html").toUriString())
+                        .path("/swagger-ui.html").toUriString())
                 .withRel("swagger")
                 .withTitle("Gets the Swagger documentation");
+
 
         return CollectionModel.empty(scriptsLink, swaggerLink);
     }

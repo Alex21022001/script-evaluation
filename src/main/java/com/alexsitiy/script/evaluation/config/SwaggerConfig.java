@@ -3,8 +3,11 @@ package com.alexsitiy.script.evaluation.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 /**
  * This configuration class is used for Swagger API configuration.
@@ -16,8 +19,21 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     @Bean
+    public Server server1(){
+        return new Server()
+                .url("http://127.0.0.1:8080");
+    }
+
+    @Bean
+    public Server server2(){
+        return new Server()
+                .url("http://localhost:8080");
+    }
+
+    @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .servers(List.of(server1(),server2()))
                 .info(new Info()
                         .title("Script Evaluation API")
                         .summary("REST API wrapper built with Spring Boot that integrates with the GraalJS JavaScript interpreter." +

@@ -92,13 +92,14 @@ cd script-evaluation
 5. Run docker-compose file
 
 ```bash
-docker-compose up --build
+docker-compose up -d --build
 ```
 
-6. Prometheus will be available at http://localhost:9090, and Grafana at http://localhost:3000 (default login:
+6. Go to http://localhost:8080. 
+Script evaluation will be at http://localhost:8080/app Prometheus will be available at http://localhost:8080/prometheus, and Grafana at http://localhost:8080/grafana (default login:
    admin/admin).
 
-7. Import custom Grafana dashboards from the **dashboard** directory to visualize specific application metrics.
+8. Import custom Grafana dashboards from the **dashboard** directory to visualize specific application metrics.
 
 
 

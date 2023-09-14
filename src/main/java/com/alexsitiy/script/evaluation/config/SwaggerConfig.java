@@ -21,13 +21,13 @@ public class SwaggerConfig {
     @Bean
     public Server server1(){
         return new Server()
-                .url("http://127.0.0.1:8080");
+                .url("http://localhost:8082");
     }
 
     @Bean
     public Server server2(){
         return new Server()
-                .url("http://localhost:8080");
+                .url("http://127.0.0.1:8082");
     }
 
     @Bean

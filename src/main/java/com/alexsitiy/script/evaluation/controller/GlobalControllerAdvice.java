@@ -1,15 +1,13 @@
 package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.dto.ValidationErrorResponse;
-import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
-import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
-import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
-import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
+import com.alexsitiy.script.evaluation.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -20,7 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * @see MediaType
  */
 @ControllerAdvice
-public class ScriptControllerAdvice {
+public class GlobalControllerAdvice {
 
     /**
      * Handles {@linkplain NoSuchScriptException} that can occur when
@@ -69,6 +67,19 @@ public class ScriptControllerAdvice {
     @ExceptionHandler(ScriptNotValidException.class)
     public ProblemDetail handleScriptNotValidException(ScriptNotValidException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidUserDataException.class)
+    public ProblemDetail handleInvalidUserDataException(InvalidUserDataException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .badRequest()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(ValidationErrorResponse.of(e.getBindingResult()));
     }
 
     /**

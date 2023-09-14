@@ -1,6 +1,8 @@
 package com.alexsitiy.script.evaluation.dto;
 
+import com.alexsitiy.script.evaluation.controller.GlobalControllerAdvice;
 import jakarta.validation.ConstraintViolation;
+import org.springframework.validation.BindingResult;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.Set;
  * This class is a representation of validation error that is used
  * to inform user of not passing validation.
  * <br/>
- * It's used by {@link com.alexsitiy.script.evaluation.controller.ScriptControllerAdvice}
+ * It's used by {@link GlobalControllerAdvice}
  */
 @SuppressWarnings({"unused"})
 public final class ValidationErrorResponse {
@@ -34,6 +36,15 @@ public final class ValidationErrorResponse {
                 constraintViolation.getMessage(),
                 constraintViolation.getInvalidValue()
         )));
+
+        return new ValidationErrorResponse(violations);
+    }
+
+    public static ValidationErrorResponse of(BindingResult bindingResult) {
+        List<Violation> violations = new ArrayList<>();
+
+        bindingResult.getFieldErrors().forEach(fieldError -> violations
+                .add(new Violation(fieldError.getDefaultMessage(), fieldError.getRejectedValue())));
 
         return new ValidationErrorResponse(violations);
     }

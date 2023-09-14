@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class KeyCloakConfig {
+public class KeycloakConfig {
 
     private final KeycloakProperties keycloakProperties;
 
     @Autowired
-    public KeyCloakConfig(KeycloakProperties keycloakProperties) {
+    public KeycloakConfig(KeycloakProperties keycloakProperties) {
         this.keycloakProperties = keycloakProperties;
     }
 

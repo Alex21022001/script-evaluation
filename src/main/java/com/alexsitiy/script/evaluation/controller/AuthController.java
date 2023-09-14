@@ -32,10 +32,15 @@ public class AuthController {
     public ResponseEntity<UserReadDto> register(@RequestBody
                                                 @Validated
                                                 UserCreateDto userCreateDto) {
+        // TODO: 14.09.2023 check work with AccessToken and cors because session can hamper
+        // TODO: 14.09.2023 Add password auth to swagger
+        // TODO: 14.09.2023 Add cors
+        // TODO: 14.09.2023 Add authentication password/username
         // TODO: 14.09.2023 Add HATEOAS to links
-        // TODO: 14.09.2023 Add authorization
         // TODO: 14.09.2023 Add swagger auth
-        // TODO: 14.09.2023 add documentation
+        // TODO: 14.09.2023 refresh token
+        // TODO: 14.09.2023 logout
+        // TODO: 14.09.2023 add java and swagger documentation
 
         UserRepresentation userRepresentation = keycloakService.createUser(userCreateDto);
         UserReadDto user = userMapper.toModel(userRepresentation);

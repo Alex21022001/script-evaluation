@@ -11,6 +11,24 @@ spring:
         jwt:
           issuer-uri: ${ISSUER_URI}
           jwk-set-uri: ${JWK_SET_URI}
+      client:
+        provider:
+          keycloak:
+            authorization-uri: ${KEYCLOAK_AUTH_URI}
+            issuer-uri: ${ISSUER_URI}
+            token-uri: ${KEYCLOAK_TOKEN_URI}
+            jwk-set-uri: ${JWK_SET_URI}
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: ${REG_KEYCLOAK_CLIENT_ID}
+            client-secret: ${REG_KEYCLOAK_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/login/oauth2/code/keycloak"
+            scope:
+              - openid
+              - profile
+              - email
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL}
   realm: ${KEYCLOAK_REALM}

@@ -30,7 +30,11 @@ public class RootController {
                 .withRel("swagger")
                 .withTitle("Gets the Swagger documentation");
 
+        Link keycloakLink = Link.of(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/oauth2/authorization/keycloak").toUriString())
+                .withRel("keycloak")
+                .withTitle("Authentication");
 
-        return CollectionModel.empty(scriptsLink, swaggerLink);
+        return CollectionModel.empty(scriptsLink, swaggerLink, keycloakLink);
     }
 }

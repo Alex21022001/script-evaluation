@@ -1,9 +1,11 @@
 package com.alexsitiy.script.evaluation.controller;
 
+import com.alexsitiy.script.evaluation.doc.annotation.RegisterUserApiEndpoint;
 import com.alexsitiy.script.evaluation.dto.UserCreateDto;
 import com.alexsitiy.script.evaluation.dto.UserReadDto;
 import com.alexsitiy.script.evaluation.mapper.UserReadMapper;
 import com.alexsitiy.script.evaluation.service.KeycloakService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,8 +16,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * This Controller is responsible for creating new Users via
+ * Keycloak admin client.
+ *
+ * @see KeycloakService
+ */
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Auth controller", description = "Contains endpoint for registration of a new User")
 public class AuthController {
 
     private final KeycloakService keycloakService;
@@ -28,19 +37,20 @@ public class AuthController {
         this.userMapper = userMapper;
     }
 
+    /**
+     * Creates a new User via a given {@link UserCreateDto} object, but
+     * validates it first.
+     *
+     * @param userCreateDto - Dto for user's creation.
+     * @return {@link UserReadDto} - is a representation of {@link UserRepresentation} object that
+     * is obtained after a successful creation.
+     * @see UserReadMapper
+     */
     @PostMapping
+    @RegisterUserApiEndpoint
     public ResponseEntity<UserReadDto> register(@RequestBody
                                                 @Validated
                                                 UserCreateDto userCreateDto) {
-        // TODO: 14.09.2023 check work with AccessToken and cors because session can hamper
-        // TODO: 14.09.2023 Add password auth to swagger
-        // TODO: 14.09.2023 Add cors
-        // TODO: 14.09.2023 Add authentication password/username
-        // TODO: 14.09.2023 Add HATEOAS to links
-        // TODO: 14.09.2023 Add swagger auth
-        // TODO: 14.09.2023 refresh token
-        // TODO: 14.09.2023 logout
-        // TODO: 14.09.2023 add java and swagger documentation
 
         UserRepresentation userRepresentation = keycloakService.createUser(userCreateDto);
         UserReadDto user = userMapper.toModel(userRepresentation);

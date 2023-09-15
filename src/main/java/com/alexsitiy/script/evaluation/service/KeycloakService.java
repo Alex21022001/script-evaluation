@@ -20,6 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+/**
+ * This Service is responsible for creating new Users via
+ * {@link Keycloak}.
+ */
 @Service
 public class KeycloakService {
 
@@ -28,8 +32,9 @@ public class KeycloakService {
     private final Logger log = LoggerFactory.getLogger(KeycloakService.class);
 
     private final Keycloak keycloak;
-    private final String realm;
     private final UserRepresentationMapper userMapper;
+
+    private final String realm;
 
     private RealmResource realmResource;
     private UsersResource usersResource;
@@ -47,6 +52,13 @@ public class KeycloakService {
         usersResource = realmResource.users();
     }
 
+    /**
+     * Creates and adds a new User with default role to Keycloak authorization server.
+     *
+     * @param user a given user's data
+     * @return {@link UserRepresentation}- it's a representation of a created user given by Keycloak.
+     * @throws InvalidUserDataException it's thrown if the user was not created and 409(CONFLICT) was Keycloak authorization server.
+     */
     public UserRepresentation createUser(UserCreateDto user) {
         UserRepresentation userRepresentation = userMapper.map(user);
         Response response = usersResource.create(userRepresentation);

@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration of {@link Keycloak} admin client
+ * that is used to interact with Keycloak authorization server.
+ */
 @Configuration
 public class KeycloakConfig {
 

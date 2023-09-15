@@ -19,6 +19,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * This class is a configuration of Spring Security.
+ */
 @Configuration
 public class SecurityConfig {
 

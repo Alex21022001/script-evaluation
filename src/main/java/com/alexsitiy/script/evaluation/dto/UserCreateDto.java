@@ -1,9 +1,20 @@
 package com.alexsitiy.script.evaluation.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@Schema(example = """
+        {
+            "firstname":"Alex",
+            "lastname":"Sitiy",
+            "username":"alex",
+            "email":"alex@gmail.com",
+            "password":"1234"
+        }
+        """)
+@SuppressWarnings("unused")
 public class UserCreateDto {
 
     @NotBlank

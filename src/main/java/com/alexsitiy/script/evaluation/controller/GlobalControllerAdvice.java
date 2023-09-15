@@ -63,12 +63,25 @@ public class GlobalControllerAdvice {
         return ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, e.getMessage());
     }
 
-
+    /**
+     * Handles {@linkplain ScriptNotValidException} that can occur when
+     * a given script has syntax errors. Returns 400(BAD_REQUEST).
+     *
+     * @param e CapacityViolationException that need to be solved.
+     * @return {@linkplain ProblemDetail} - representation of the response with 429 status code.
+     */
     @ExceptionHandler(ScriptNotValidException.class)
     public ProblemDetail handleScriptNotValidException(ScriptNotValidException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    /**
+     * Handles {@linkplain InvalidUserDataException} that can occur when
+     * user was not created in Keycloak due to conflict. Returns 400(BAD_REQUEST).
+     *
+     * @param e InvalidUserDataException that need to be solved.
+     * @return {@linkplain ProblemDetail} - representation of the response with 400 status code.
+     */
     @ExceptionHandler(InvalidUserDataException.class)
     public ProblemDetail handleInvalidUserDataException(InvalidUserDataException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());

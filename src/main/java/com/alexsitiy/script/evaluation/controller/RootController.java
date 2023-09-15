@@ -35,6 +35,11 @@ public class RootController {
                 .withRel("keycloak")
                 .withTitle("Authentication");
 
-        return CollectionModel.empty(scriptsLink, swaggerLink, keycloakLink);
+        Link logout = Link.of(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/logout").toUriString())
+                .withRel("logout")
+                .withTitle("Logout");
+
+        return CollectionModel.empty(scriptsLink, swaggerLink, keycloakLink, logout);
     }
 }

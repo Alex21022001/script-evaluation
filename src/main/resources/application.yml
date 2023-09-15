@@ -9,15 +9,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${ISSUER_URI}
-          jwk-set-uri: ${JWK_SET_URI}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
       client:
         provider:
           keycloak:
             authorization-uri: ${KEYCLOAK_AUTH_URI}
-            issuer-uri: ${ISSUER_URI}
             token-uri: ${KEYCLOAK_TOKEN_URI}
-            jwk-set-uri: ${JWK_SET_URI}
+            jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
         registration:
           keycloak:
             provider: keycloak
@@ -40,7 +39,7 @@ server:
     mime-types: text/plain
     min-response-size: 1KB
   forward-headers-strategy: framework
-  port: 8082
+  port: 8081
 springdoc:
   swagger-ui:
     operations-sorter: method
@@ -49,7 +48,6 @@ springdoc:
       client-id: ${REG_KEYCLOAK_CLIENT_ID}
       client-secret: ${REG_KEYCLOAK_CLIENT_SECRET}
       scopes: openid profile email
-
 
 management:
   endpoints:
@@ -60,3 +58,4 @@ management:
     distribution:
       percentiles-histogram:
         "[http.server.request]": true
+

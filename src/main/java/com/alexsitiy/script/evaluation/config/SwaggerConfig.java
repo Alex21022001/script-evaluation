@@ -25,12 +25,12 @@ import java.util.List;
         flows = @OAuthFlows(
                 authorizationCode = @OAuthFlow(
                         authorizationUrl = "${KEYCLOAK_AUTH_URI}",
-                        tokenUrl = "${KEYCLOAK_TOKEN_URI}",
-                        refreshUrl = "${KEYCLOAK_TOKEN_URI}"
+                        tokenUrl = "${SWAGGER_KEYCLOAK_TOKEN_URL}",
+                        refreshUrl = "${SWAGGER_KEYCLOAK_TOKEN_URL}"
                 ),
                 password = @OAuthFlow(
                         authorizationUrl = "${KEYCLOAK_AUTH_URI}",
-                        tokenUrl = "${KEYCLOAK_TOKEN_URI}"
+                        tokenUrl = "${SWAGGER_KEYCLOAK_TOKEN_URL}"
                 )
         )
 )
@@ -40,13 +40,13 @@ public class SwaggerConfig {
     @Bean
     public Server server1() {
         return new Server()
-                .url("http://localhost:8082");
+                .url("http://localhost:8081");
     }
 
     @Bean
     public Server server2() {
         return new Server()
-                .url("http://127.0.0.1:8082");
+                .url("http://127.0.0.1:8081");
     }
 
     @Bean

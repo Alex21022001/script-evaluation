@@ -44,9 +44,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authorizeHttpRequests(authRequest -> authRequest
-                        .requestMatchers("/", "/auth", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
+                        .requestMatchers("/", "/logout", "/auth", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
                         .anyRequest().authenticated())
 
+                .logout(logout -> logout
+                        .deleteCookies("JSESSIONID")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/"))
 
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig

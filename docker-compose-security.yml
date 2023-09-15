@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.3
+    container_name: "keycloak"
+    environment:
+      - "KEYCLOAK_ADMIN=admin"
+      - "KEYCLOAK_ADMIN_PASSWORD=admin"
+    command:
+      - "start-dev"
+    ports:
+      - "8080:8080"
+    restart: always
+
+  app:
+    build: ./
+    container_name: script-eval
+    restart: always
+    depends_on:
+      - keycloak
+    env_file:
+      - "security.env"
+    ports:
+      - "8081:8081"
+

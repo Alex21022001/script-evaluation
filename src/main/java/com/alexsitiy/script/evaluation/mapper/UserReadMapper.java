@@ -9,6 +9,14 @@ import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
+/**
+ * This class is a mapper that extends {@link RepresentationModelAssemblerSupport} and
+ * converts {@link UserRepresentation} to {@link UserReadDto}
+ * also adds HATEOAS links to it.
+ *
+ * @see EntityLinks
+ * @see org.springframework.hateoas.server.mvc.WebMvcLinkBuilder
+ */
 @Component
 public class UserReadMapper extends RepresentationModelAssemblerSupport<UserRepresentation, UserReadDto> {
 

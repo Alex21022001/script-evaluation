@@ -8,6 +8,12 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class is a mapper that
+ * converts {@link UserCreateDto} to {@link UserRepresentation} for the future user account creation.
+ *
+ * @see com.alexsitiy.script.evaluation.service.KeycloakService
+ */
 @Component
 public class UserRepresentationMapper {
 

@@ -2,6 +2,7 @@ package com.alexsitiy.script.evaluation.dto;
 
 import org.springframework.hateoas.RepresentationModel;
 
+@SuppressWarnings("unused")
 public class UserReadDto extends RepresentationModel<UserReadDto> {
     private final String id;
     private final String firstname;

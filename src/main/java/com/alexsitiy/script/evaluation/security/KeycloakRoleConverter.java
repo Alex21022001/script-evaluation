@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This class is responsible for converting {@link Jwt} to {@link GrantedAuthority} collection.
+ * It's used during Access token parsing in order to appropriately retrieve roles from it.
+ * */
 @Component
 @SuppressWarnings("unchecked")
 public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedAuthority>> {

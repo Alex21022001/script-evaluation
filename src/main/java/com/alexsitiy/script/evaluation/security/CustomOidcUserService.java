@@ -13,6 +13,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
+/**
+ * This is an implementation of {@link OAuth2UserService} that is used for
+ * creating Authentication Principal that will be stored in HttpSession.
+ * It utilizes {@link KeycloakRoleConverter} to appropriately retrieve roles from Access token.
+ */
 @Component
 public class CustomOidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 

@@ -52,6 +52,41 @@ java -jar script-evaluation-0.0.1-SNAPSHOT.jar
 
 #### You also can run the app via Docker, take a look at the last section (Monitoring).
 
+## Run with Security
+
+You can run this app alongside a Keycloak server via Docker-compose file.
+In order to do it follow the further steps:
+
+1. Go to the security branch of the repository.
+2. Clone the repository
+3. Go to the directory
+
+```bash
+cd script-evaluation
+```
+
+4. Build the project using Maven Wrapper
+
+```bash
+./mvnw clean package
+```
+
+5. Run docker-compose file
+
+```bash
+docker-compose -f docker-compose-security.yml up -d --build
+```
+
+6. Wait until the Keycloak is up and go to http://localhost:8080/admin/master/console.
+7. Log in via **username**=admin and **password**=admin.
+8. You need to import already prepared realm that you can find in a **keycloak** directory.
+9. Afterwards you can go to the app host (http://localhost:8081) and create a new user by sending a POST request
+   to http://localhost:8081/auth or using Swagger UI.
+10. You need to authenticate by a created user. You can do it via Swagger Authentication (Authorization_code/password
+    grant type) that will add an Authorization header to each request or go
+    to http://localhost:8081/login/oauth2/code/keycloak that will authenticate you via Authorization code flow and add a
+    created Authentication to the HttpSession.
+
 ## How to Use
 
 ### Swagger UI
@@ -95,8 +130,9 @@ cd script-evaluation
 docker-compose up -d --build
 ```
 
-6. Go to http://localhost:8080. 
-Script evaluation will be at http://localhost:8080/app Prometheus will be available at http://localhost:8080/prometheus, and Grafana at http://localhost:8080/grafana (default login:
+6. Go to http://localhost:8080.
+   Script evaluation will be at http://localhost:8080/app Prometheus will be available
+   at http://localhost:8080/prometheus, and Grafana at http://localhost:8080/grafana (default login:
    admin/admin).
 
 8. Import custom Grafana dashboards from the **dashboard** directory to visualize specific application metrics.

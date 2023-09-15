@@ -45,6 +45,12 @@ springdoc:
   swagger-ui:
     operations-sorter: method
     tags-sorter: alpha
+    oauth:
+      client-id: ${REG_KEYCLOAK_CLIENT_ID}
+      client-secret: ${REG_KEYCLOAK_CLIENT_SECRET}
+      scopes: openid profile email
+
+
 management:
   endpoints:
     web:

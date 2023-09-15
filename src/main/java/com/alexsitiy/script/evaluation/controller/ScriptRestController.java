@@ -8,6 +8,7 @@ import com.alexsitiy.script.evaluation.model.Script;
 import com.alexsitiy.script.evaluation.model.Status;
 import com.alexsitiy.script.evaluation.repository.ScriptRepository;
 import com.alexsitiy.script.evaluation.service.ScriptService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
@@ -55,6 +56,7 @@ import java.util.Set;
  * @see ScriptService
  * @see ScriptReadDto
  */
+@SecurityRequirement(name = "Authorization")
 @RestController
 @RequestMapping("/scripts")
 @ExposesResourceFor(ScriptReadDto.class)

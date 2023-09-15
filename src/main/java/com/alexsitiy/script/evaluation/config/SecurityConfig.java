@@ -1,6 +1,8 @@
 package com.alexsitiy.script.evaluation.config;
 
+import com.alexsitiy.script.evaluation.security.CustomOidcUserService;
 import com.alexsitiy.script.evaluation.security.KeycloakRoleConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,10 +22,20 @@ import java.time.temporal.ChronoUnit;
 @Configuration
 public class SecurityConfig {
 
+    private final KeycloakRoleConverter keycloakRoleConverter;
+    private final CustomOidcUserService customOidcUserService;
+
+    @Autowired
+    public SecurityConfig(KeycloakRoleConverter keycloakRoleConverter,
+                          CustomOidcUserService customOidcUserService) {
+        this.keycloakRoleConverter = keycloakRoleConverter;
+        this.customOidcUserService = customOidcUserService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
+        converter.setJwtGrantedAuthoritiesConverter(keycloakRoleConverter);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -32,16 +44,18 @@ public class SecurityConfig {
                         .requestMatchers("/", "/auth", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
                         .anyRequest().authenticated())
 
+
                 .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .oidcUserService(customOidcUserService))
+                        .failureUrl("/error")
                         .defaultSuccessUrl("/"))
 
                 .oauth2ResourceServer(resourceServer -> resourceServer
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(converter)))
 
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
-
+                .exceptionHandling(exHandling -> exHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
         return http.build();
     }
@@ -56,7 +70,7 @@ public class SecurityConfig {
         configuration.addAllowedMethod(HttpMethod.OPTIONS);
         configuration.addAllowedHeader("*");
         configuration.addExposedHeader("*");
-        configuration.setMaxAge(Duration.of(10, ChronoUnit.MINUTES));
+        configuration.setMaxAge(Duration.of(1, ChronoUnit.HOURS));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

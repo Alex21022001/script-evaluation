@@ -1,5 +1,9 @@
 package com.alexsitiy.script.evaluation.config;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.OAuthFlow;
+import io.swagger.v3.oas.annotations.security.OAuthFlows;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -14,18 +18,33 @@ import java.util.List;
  * It includes configuration of info section.
  *
  * @see OpenAPI
- * */
+ */
+@SecurityScheme(
+        name = "Authorization",
+        type = SecuritySchemeType.OAUTH2,
+        flows = @OAuthFlows(
+                authorizationCode = @OAuthFlow(
+                        authorizationUrl = "${KEYCLOAK_AUTH_URI}",
+                        tokenUrl = "${KEYCLOAK_TOKEN_URI}",
+                        refreshUrl = "${KEYCLOAK_TOKEN_URI}"
+                ),
+                password = @OAuthFlow(
+                        authorizationUrl = "${KEYCLOAK_AUTH_URI}",
+                        tokenUrl = "${KEYCLOAK_TOKEN_URI}"
+                )
+        )
+)
 @Configuration
 public class SwaggerConfig {
 
     @Bean
-    public Server server1(){
+    public Server server1() {
         return new Server()
                 .url("http://localhost:8082");
     }
 
     @Bean
-    public Server server2(){
+    public Server server2() {
         return new Server()
                 .url("http://127.0.0.1:8082");
     }
@@ -33,7 +52,7 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .servers(List.of(server1(),server2()))
+                .servers(List.of(server1(), server2()))
                 .info(new Info()
                         .title("Script Evaluation API")
                         .summary("REST API wrapper built with Spring Boot that integrates with the GraalJS JavaScript interpreter." +

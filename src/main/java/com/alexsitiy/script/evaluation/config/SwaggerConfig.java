@@ -2,9 +2,6 @@ package com.alexsitiy.script.evaluation.config;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.security.OAuthFlow;
-import io.swagger.v3.oas.annotations.security.OAuthFlows;
-import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -25,10 +22,7 @@ import java.util.List;
         name = "Authorization",
         in = SecuritySchemeIn.HEADER,
         type = SecuritySchemeType.OPENIDCONNECT,
-        openIdConnectUrl = "${KEYCLOAK_OPENID_CONFIG_URL}",
-        flows = @OAuthFlows(
-                authorizationCode = @OAuthFlow(scopes = @OAuthScope(name = "api"))
-        )
+        openIdConnectUrl = "${KEYCLOAK_OPENID_CONFIG_URL}"
 )
 @Configuration
 public class SwaggerConfig {

@@ -2,7 +2,6 @@ package com.alexsitiy.script.evaluation.dto;
 
 import com.alexsitiy.script.evaluation.controller.GlobalControllerAdvice;
 import jakarta.validation.ConstraintViolation;
-import org.springframework.validation.BindingResult;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -36,15 +35,6 @@ public final class ValidationErrorResponse {
                 constraintViolation.getMessage(),
                 constraintViolation.getInvalidValue()
         )));
-
-        return new ValidationErrorResponse(violations);
-    }
-
-    public static ValidationErrorResponse of(BindingResult bindingResult) {
-        List<Violation> violations = new ArrayList<>();
-
-        bindingResult.getFieldErrors().forEach(fieldError -> violations
-                .add(new Violation(fieldError.getDefaultMessage(), fieldError.getRejectedValue())));
 
         return new ValidationErrorResponse(violations);
     }

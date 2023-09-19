@@ -50,42 +50,40 @@ cd .\target
 java -jar script-evaluation-0.0.1-SNAPSHOT.jar
 ```
 
-#### You also can run the app via Docker, take a look at the last section (Monitoring).
+#### You also can run the app via Docker, take a look at the last section (Run via Docker)
 
-## Run with Security
+## Run via Docker
 
-You can run this app alongside a Keycloak server via Docker-compose file.
-In order to do it follow the further steps:
+In order to run the app via Docker you need to do the following steps:
 
-1. Go to the security branch of the repository.
-2. Clone the repository
-3. Go to the directory
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Alex21022001/script-evaluation.git
+```
+
+2. Go to the directory
 
 ```bash
 cd script-evaluation
 ```
 
-4. Build the project using Maven Wrapper
+3. Find **.env** file
+4. Configure all the necessary environment variables which are marked with #
+5. Run the docker-compose.yml
 
 ```bash
-./mvnw clean package
+docker-compose up -d --build
 ```
 
-5. Run docker-compose file
+6. Wait until all the apps get up.
+7. Afterwards you can find executing apps by the following urls:
 
-```bash
-docker-compose -f docker-compose-security.yml up -d --build
-```
+- Script evaluation app -> http://localhost:8080/app
+- Keycloak app -> http://localhost:8080/auth
+- Prometheus app -> http://localhost:8080/prometheus
+- Grafana app -> http://localhost:8080/grafana (You also can import custom Grafana dashboards from the **dashboard** directory to visualize specific application metrics.)
 
-6. Wait until the Keycloak is up and go to http://localhost:8080/admin/master/console.
-7. Log in via **username**=admin and **password**=admin.
-8. You need to import already prepared realm that you can find in a **keycloak** directory.
-9. Afterwards you can go to the app host (http://localhost:8081) and create a new user by sending a POST request
-   to http://localhost:8081/auth or using Swagger UI.
-10. You need to authenticate by a created user. You can do it via Swagger Authentication (Authorization_code/password
-    grant type) that will add an Authorization header to each request or go
-    to http://localhost:8081/login/oauth2/code/keycloak that will authenticate you via Authorization code flow and add a
-    created Authentication to the HttpSession.
 
 ## How to Use
 
@@ -99,43 +97,6 @@ docker-compose -f docker-compose-security.yml up -d --build
 1. Download and install Postman.
 2. Import the provided Postman collection: **_scripts-evaluation.postman_collection.json_**
 3. You'll find a collection of API requests that you can use to interact with the application.
-
-## Metrics and Monitoring
-
-This application includes metrics and monitoring powered by Prometheus and Grafana. To access the metrics and custom
-dashboards:
-
-1. Ensure you have Docker installed.
-2. Clone the repository:
-
-```bash
-git clone https://github.com/Alex21022001/script-evaluation.git
-```
-
-3. Go to the directory
-
-```bash
-cd script-evaluation
-```
-
-4. Build the project using Maven Wrapper
-
-```bash
-./mvnw clean install
-```
-
-5. Run docker-compose file
-
-```bash
-docker-compose up -d --build
-```
-
-6. Go to http://localhost:8080.
-   Script evaluation will be at http://localhost:8080/app Prometheus will be available
-   at http://localhost:8080/prometheus, and Grafana at http://localhost:8080/grafana (default login:
-   admin/admin).
-
-8. Import custom Grafana dashboards from the **dashboard** directory to visualize specific application metrics.
 
 
 

@@ -1,5 +1,9 @@
+FROM maven:3.9.4 AS builder
+ADD ./pom.xml pom.xml
+ADD ./src src/
+RUN mvn clean package
+
 FROM openjdk:17
-WORKDIR /app
-EXPOSE 8080
-COPY /target/script-evaluation-0.0.1-SNAPSHOT.jar script-eval.jar
-CMD ["java","-jar","script-eval.jar"]
+COPY --from=builder target/script-evaluation-0.0.1-SNAPSHOT.jar sciprt-eval.jar
+EXPOSE 8081
+CMD ["java","-jar","sciprt-eval.jar"]

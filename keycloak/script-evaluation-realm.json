@@ -1,6 +1,6 @@
 {
   "id": "de9cbf5b-c120-4dbb-8c0a-1f03c65c5d2b",
-  "realm": "spring-evaluation-realm",
+  "realm": "spring-evaluation",
   "displayName": "",
   "displayNameHtml": "",
   "notBefore": 0,
@@ -29,13 +29,13 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": false,
-  "registrationEmailAsUsername": false,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
   "rememberMe": false,
   "verifyEmail": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
-  "resetPasswordAllowed": false,
+  "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
   "bruteForceProtected": false,
   "permanentLockout": false,
@@ -91,8 +91,7 @@
         "composites": {
           "realm": [
             "offline_access",
-            "uma_authorization",
-            "user"
+            "uma_authorization"
           ],
           "client": {
             "account": [
@@ -334,7 +333,6 @@
           "attributes": {}
         }
       ],
-      "user-management-client": [],
       "account": [
         {
           "id": "77592fd9-d818-4a54-b5dc-bf2f1cc3d871",
@@ -445,8 +443,8 @@
   "otpPolicyPeriod": 30,
   "otpPolicyCodeReusable": false,
   "otpSupportedApplications": [
-    "totpAppMicrosoftAuthenticatorName",
     "totpAppFreeOTPName",
+    "totpAppMicrosoftAuthenticatorName",
     "totpAppGoogleName"
   ],
   "webAuthnPolicyRpEntityName": "keycloak",
@@ -473,46 +471,6 @@
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
-  "users": [
-    {
-      "id": "61b85bff-d42d-43b9-b1dd-b529dc7da604",
-      "createdTimestamp": 1694601809106,
-      "username": "service-account-spring-eval-client",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": false,
-      "serviceAccountClientId": "spring-eval-client",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-spring-evaluation-realm"
-      ],
-      "notBefore": 0,
-      "groups": []
-    },
-    {
-      "id": "46c209e5-5f4b-4196-aa4a-31222b864121",
-      "createdTimestamp": 1694609481801,
-      "username": "service-account-user-management-client",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": false,
-      "serviceAccountClientId": "user-management-client",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-spring-evaluation-realm"
-      ],
-      "clientRoles": {
-        "realm-management": [
-          "manage-users",
-          "view-realm"
-        ]
-      },
-      "notBefore": 0,
-      "groups": []
-    }
-  ],
   "scopeMappings": [
     {
       "clientScope": "offline_access",
@@ -538,13 +496,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/spring-evaluation-realm/account/",
+      "baseUrl": "/realms/spring-evaluation/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/spring-evaluation-realm/account/*"
+        "/realms/spring-evaluation/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -751,13 +709,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/spring-evaluation-realm/console/",
+      "baseUrl": "/admin/spring-evaluation/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/spring-evaluation-realm/console/*"
+        "/admin/spring-evaluation/console/*"
       ],
       "webOrigins": [
         "+"
@@ -822,7 +780,6 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "BOAfFB1YQNvzhwOP3PJc4KRKUzIjCi31",
       "redirectUris": [
         "http://localhost:8081/*"
       ],
@@ -834,9 +791,9 @@
       "consentRequired": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": true,
-      "publicClient": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
       "frontchannelLogout": true,
       "protocol": "openid-connect",
       "attributes": {
@@ -895,116 +852,18 @@
           }
         }
       ],
-      "defaultClientScopes": [
-        "web-origins",
-        "roles"
-      ],
+      "defaultClientScopes": [],
       "optionalClientScopes": [
+        "web-origins",
         "acr",
         "address",
         "phone",
         "profile",
         "offline_access",
+        "roles",
+        "api",
         "microprofile-jwt",
         "email"
-      ]
-    },
-    {
-      "id": "e4f60805-8599-4b78-bbf8-b81091681109",
-      "clientId": "user-management-client",
-      "name": "user-management-client",
-      "description": "",
-      "rootUrl": "",
-      "adminUrl": "",
-      "baseUrl": "",
-      "surrogateAuthRequired": false,
-      "enabled": true,
-      "alwaysDisplayInConsole": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "HYgoMcuBypIMbhYbyJZeTDclnndiOy6f",
-      "redirectUris": [
-        "/*"
-      ],
-      "webOrigins": [
-        "/*"
-      ],
-      "notBefore": 0,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": true,
-      "publicClient": false,
-      "frontchannelLogout": true,
-      "protocol": "openid-connect",
-      "attributes": {
-        "oidc.ciba.grant.enabled": "false",
-        "client.secret.creation.time": "1694609481",
-        "backchannel.logout.session.required": "true",
-        "oauth2.device.authorization.grant.enabled": "false",
-        "display.on.consent.screen": "false",
-        "backchannel.logout.revoke.offline.tokens": "false"
-      },
-      "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": true,
-      "nodeReRegistrationTimeout": -1,
-      "protocolMappers": [
-        {
-          "id": "614ef24b-642b-4d90-bba9-e7cde2790dac",
-          "name": "Client ID",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "client_id",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "client_id",
-            "jsonType.label": "String"
-          }
-        },
-        {
-          "id": "68bcb612-c79a-4679-b464-b751e53ccd68",
-          "name": "Client Host",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "clientHost",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "clientHost",
-            "jsonType.label": "String"
-          }
-        },
-        {
-          "id": "0d80f797-e62e-49e1-8054-c7389a9b0eb6",
-          "name": "Client IP Address",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usersessionmodel-note-mapper",
-          "consentRequired": false,
-          "config": {
-            "user.session.note": "clientAddress",
-            "id.token.claim": "true",
-            "access.token.claim": "true",
-            "claim.name": "clientAddress",
-            "jsonType.label": "String"
-          }
-        }
-      ],
-      "defaultClientScopes": [
-        "web-origins",
-        "acr",
-        "profile",
-        "roles",
-        "email"
-      ],
-      "optionalClientScopes": [
-        "address",
-        "phone",
-        "offline_access",
-        "microprofile-jwt"
       ]
     }
   ],
@@ -1295,6 +1154,18 @@
       ]
     },
     {
+      "id": "05a90f38-36ba-47f4-bb95-a21457f86726",
+      "name": "api",
+      "description": "Get the access to Script evaluation server",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "gui.order": "",
+        "consent.screen.text": ""
+      }
+    },
+    {
       "id": "29ff7989-3e33-4718-8305-09dbaf85097c",
       "name": "web-origins",
       "description": "OpenID Connect scope for add allowed web origins to the access token",
@@ -1528,7 +1399,8 @@
     "offline_access",
     "address",
     "phone",
-    "microprofile-jwt"
+    "microprofile-jwt",
+    "api"
   ],
   "browserSecurityHeaders": {
     "contentSecurityPolicyReportOnly": "",
@@ -1660,7 +1532,7 @@
     ],
     "org.keycloak.userprofile.UserProfileProvider": [
       {
-        "id": "71acadfe-3c80-4949-b13d-f58d739e2ddf",
+        "id": "5ae2fa00-24c1-42ea-bbb6-8b4f2c0f422e",
         "providerId": "declarative-user-profile",
         "subComponents": {},
         "config": {}

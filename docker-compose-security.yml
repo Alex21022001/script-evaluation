@@ -5,14 +5,17 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: "keycloak"
-    environment:
-      - "KEYCLOAK_ADMIN=admin"
-      - "KEYCLOAK_ADMIN_PASSWORD=admin"
-    command:
-      - "start-dev"
     ports:
       - "8080:8080"
-    restart: always
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command:
+      - "start-dev"
+      - "--import-realm"
+    volumes:
+      - ./keycloak/script-evaluation-realm.json:/opt/keycloak/data/import/script-evaluation-realm.json
+
 
   app:
     build: ./

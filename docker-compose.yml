@@ -6,14 +6,14 @@ services:
     image: quay.io/keycloak/keycloak:22.0.3
     container_name: "keycloak"
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HTTP_RELATIVE_PATH: "/auth"
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_RELATIVE_PATH: ${KC_HTTP_RELATIVE_PATH}
+      KC_PROXY: ${KC_PROXY}
+      KC_HOSTNAME_STRICT: ${KC_HOSTNAME_STRICT}
     command:
       - "start-dev"
       - "--import-realm"
-      - "--proxy=edge"
-      - "--hostname-strict=false"
     volumes:
       - ./keycloak/script-evaluation-realm.json:/opt/keycloak/data/import/script-evaluation-realm.json
 
@@ -24,9 +24,11 @@ services:
     restart: always
     depends_on:
       - keycloak
-    env_file:
-      - "security.env"
-
+    environment:
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      KEYCLOAK_JWK_SET_URI: ${KEYCLOAK_JWK_SET_URI}
+      KEYCLOAK_OPENID_CONFIG_URL: ${KEYCLOAK_OPENID_CONFIG_URL}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
 
   prometheus:
     image: prom/prometheus
@@ -44,10 +46,10 @@ services:
     depends_on:
       - prometheus
     environment:
-      - "GF_SECURITY_ADMIN_USER=admin"
-      - "GF_SECURITY_ADMIN_PASSWORD=admin"
-      - "GF_SERVER_SERVE_FROM_SUB_PATH=true"
-      - "GF_SERVER_ROOT_URL=http://localhost:8080/grafana/"
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      GF_SERVER_SERVE_FROM_SUB_PATH: ${GF_SERVER_SERVE_FROM_SUB_PATH}
+      GF_SERVER_ROOT_URL: ${GF_SERVER_ROOT_URL}
 
   nginx:
     image: nginx

@@ -75,7 +75,6 @@
     </dependencies>
 
 
-
     <build>
         <plugins>
             <plugin>
@@ -88,6 +87,8 @@
                 <version>8.4.0</version>
                 <executions>
                     <execution>
+                        <id>dep-check</id>
+                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>

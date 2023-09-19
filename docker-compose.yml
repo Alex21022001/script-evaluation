@@ -8,9 +8,12 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_RELATIVE_PATH: "/auth"
     command:
       - "start-dev"
       - "--import-realm"
+      - "--proxy=edge"
+      - "--hostname-strict=false"
     volumes:
       - ./keycloak/script-evaluation-realm.json:/opt/keycloak/data/import/script-evaluation-realm.json
 

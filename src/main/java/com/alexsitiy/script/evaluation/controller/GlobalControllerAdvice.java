@@ -1,13 +1,15 @@
 package com.alexsitiy.script.evaluation.controller;
 
 import com.alexsitiy.script.evaluation.dto.ValidationErrorResponse;
-import com.alexsitiy.script.evaluation.exception.*;
+import com.alexsitiy.script.evaluation.exception.CapacityViolationException;
+import com.alexsitiy.script.evaluation.exception.IllegalScriptStateException;
+import com.alexsitiy.script.evaluation.exception.NoSuchScriptException;
+import com.alexsitiy.script.evaluation.exception.ScriptNotValidException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -73,26 +75,6 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(ScriptNotValidException.class)
     public ProblemDetail handleScriptNotValidException(ScriptNotValidException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
-    }
-
-    /**
-     * Handles {@linkplain InvalidUserDataException} that can occur when
-     * user was not created in Keycloak due to conflict. Returns 400(BAD_REQUEST).
-     *
-     * @param e InvalidUserDataException that need to be solved.
-     * @return {@linkplain ProblemDetail} - representation of the response with 400 status code.
-     */
-    @ExceptionHandler(InvalidUserDataException.class)
-    public ProblemDetail handleInvalidUserDataException(InvalidUserDataException e) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return ResponseEntity
-                .badRequest()
-                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                .body(ValidationErrorResponse.of(e.getBindingResult()));
     }
 
     /**

@@ -1,15 +1,12 @@
 package com.alexsitiy.script.evaluation.config;
 
-import com.alexsitiy.script.evaluation.security.CustomOidcUserService;
-import com.alexsitiy.script.evaluation.security.KeycloakRoleConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
@@ -25,43 +22,17 @@ import java.time.temporal.ChronoUnit;
 @Configuration
 public class SecurityConfig {
 
-    private final KeycloakRoleConverter keycloakRoleConverter;
-    private final CustomOidcUserService customOidcUserService;
-
-    @Autowired
-    public SecurityConfig(KeycloakRoleConverter keycloakRoleConverter,
-                          CustomOidcUserService customOidcUserService) {
-        this.keycloakRoleConverter = keycloakRoleConverter;
-        this.customOidcUserService = customOidcUserService;
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(keycloakRoleConverter);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(configurationSource()))
                 .authorizeHttpRequests(authRequest -> authRequest
-                        .requestMatchers("/", "/logout", "/auth", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
+                        .anyRequest().hasAuthority("SCOPE_api"))
 
-                .logout(logout -> logout
-                        .deleteCookies("JSESSIONID")
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/"))
-
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .oidcUserService(customOidcUserService))
-                        .failureUrl("/error")
-                        .defaultSuccessUrl("/"))
-
-                .oauth2ResourceServer(resourceServer -> resourceServer
-                        .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(converter)))
-
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .exceptionHandling(exHandling -> exHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
         return http.build();

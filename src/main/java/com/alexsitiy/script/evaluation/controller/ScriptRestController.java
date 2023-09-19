@@ -56,7 +56,7 @@ import java.util.Set;
  * @see ScriptService
  * @see ScriptReadDto
  */
-@SecurityRequirement(name = "Authorization")
+@SecurityRequirement(name = "Authorization",scopes = "api")
 @RestController
 @RequestMapping("/scripts")
 @ExposesResourceFor(ScriptReadDto.class)

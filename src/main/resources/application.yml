@@ -26,7 +26,6 @@ springdoc:
       client-id: ${KEYCLOAK_CLIENT_ID}
       use-pkce-with-authorization-code-grant: true
       scopes: api
-      use-basic-authentication-with-access-code-grant: false
 
 management:
   endpoints:
